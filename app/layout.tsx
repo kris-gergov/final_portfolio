@@ -54,6 +54,9 @@ export default function RootLayout({
             <div className="relative mx-auto w-full max-w-sm flex-1 px-4 pt-8 sm:max-w-md sm:px-6 sm:pt-12 md:max-w-2xl md:px-0 md:pt-16 lg:max-w-3xl lg:px-0 lg:pt-20 xl:max-w-4xl 2xl:max-w-5xl">
               <Header />
               {children}
+            </div>
+
+            <div className="mx-auto w-full max-w-sm px-4 sm:max-w-md sm:px-6 md:max-w-2xl md:px-0 lg:max-w-3xl lg:px-0 xl:max-w-4xl 2xl:max-w-5xl">
               <Footer />
             </div>
           </div>
