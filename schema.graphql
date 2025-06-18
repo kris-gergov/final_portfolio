@@ -1,0 +1,7981 @@
+type Query {
+  """
+  This is used to get the partner based on the ID of the user in the context
+  """
+  getPartner: Partner
+
+  """
+  This is used to get the partner based on the ID provided
+  """
+  getPartnerByID(id: ID!): Partner
+
+  """
+  This is used to get the partner based on the email address provided
+  """
+  getPartnerByEmailAddress(emailAddress: String!): Partner
+  placeholder: String
+  getFlightDetails(flightDetails: FlightDetailsInput): [FlightDetails!]!
+  searchFlight(searchInput: FlightSearchInput): [FlightSearchResult!]!
+  getFlightDetailsHealthCheck(
+    flightDetails: FlightDetailsInput
+  ): [FlightDetails!]!
+  forecast(loungeBusynessInput: LoungeBusynessInput): LoungeBusyness!
+  forecastHealthCheck(loungeBusynessInput: LoungeBusynessInput): LoungeBusyness!
+
+  """
+  Get trips for the logged in user. Paginated.<br/>
+  This also authenticates a user through the context that is passed, which is determined by the access check in Cerbos.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  default pageNumber is 1 and default pageSize is 10.<br/><br/>
+  """
+  getTrips(
+    pageNumber: Int
+    pageSize: Int
+    filters: Filters
+    orderBy: SortOrder
+  ): PaginatedResult!
+
+  """
+  Description: This query returns an entitlement for a given identifier if a match is found.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  ENTITLEMENT_CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getEntitlement(id: ID!): Entitlement
+
+  """
+  Description: This query returns a list of entitlements appropriately filtered based on different input parameters.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  ENTITLEMENT_CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getEntitlements(filter: GetEntitlementsFilter): [Entitlement!]!
+
+  """
+  Description: This query returns a list of entitlements for a consumer that is redeemable against a given product.<br/>
+  If the optional parameter `bookingStart` is passed, only the redeemable after that date will be returned.
+  If no `bookingStart` is passed then the current date and time is used instead.<br/>
+
+  If the optional parameter `bookingEnd` is passed, only the redeemable before that date will be returned.
+  If no `bookingEnd` is passed then the current date and time is used instead.<br/>
+
+  If the optional parameter `programme` is passed, only the redeemable entitlements for the specified programme will be returned.<br/>
+
+  Validation Conditions: The returned entitlements should be unredeemed, non-expired, issued on or before the current date,
+  with redeemable tags matching specified product tags (redeemableTags). <br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  ENTITLEMENT_CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getEntitlementsForProduct(
+    consumerId: ID
+    productId: ID!
+    bookingStart: Date
+    bookingEnd: Date
+    programme: Programme
+      @deprecated(reason: "No longer supported. Please pass membershipID")
+    retry: Boolean = true
+    membershipID: ID
+  ): [Entitlement!]!
+
+  """
+  Description: This query returns a list of entitlements that were used in a given booking.<br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  ENTITLEMENT_CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getEntitlementsForBooking(bookingID: ID!): [Entitlement!]!
+  getEntitlementsForProductWithCount(
+    consumerId: ID
+    productId: ID!
+    bookingStart: Date
+    bookingEnd: Date
+    programme: Programme
+      @deprecated(reason: "No longer supported. Please pass membershipID")
+    retry: Boolean = true
+    membershipID: ID
+    membershipNumber: String
+  ): ProductEntitlements!
+
+  """
+  Description: This query returns a list of entitlements appropriately filtered based on different input parameters and
+  also returns the count based on grouping conditions.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  ENTITLEMENT_CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getEntitlementsWithCount(
+    filter: GetEntitlementsFilter
+    groupBy: [String]
+  ): [EntitlementsWithCount!]!
+
+  """
+  Description: This query returns a list of deal entitlements<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  ENTITLEMENT_CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getDealEntitlements(externalMembershipPlanID: String): [DealEntitlement!]!
+  getDealEntitlementsForActiveProducts(
+    productIDs: [String]
+    membershipID: String
+    membershipNumber: String
+  ): [DealEntitlementForActiveProducts]
+
+  """
+  Description: This query returns of membership that can be used for outlet booking<br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  ENTITLEMENT_CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getMembershipForProducts(
+    productIDs: [String]
+    membershipID: String!
+  ): Membership
+
+  """
+  Get all available slots on a pre-agreed product for a date
+
+  ProductConsumptionTime is the time at which the product will be used.
+
+  Example: Suppose the product is a flight. The flight takes place at 30/12/2012 at 05:00PM.
+  Then the productConsumtionTime would be 2012-12-30T13:00:00.000Z
+  """
+  getAvailableSlotsForProductByDate(
+    productConsumptionTime: Date!
+    productId: ID!
+  ): [AvailableSlot]
+
+  """
+  Get individual Slot Configuration By it's ID
+  """
+  getSlotConfigByID(slotConfigurationId: ID!): SlotConfiguration
+
+  """
+  Get all Slot Configurations for a given Product
+  """
+  getSlotConfigsByProductID(productId: ID!): SlotConfigurations
+  getAffiliateProducts: [AffiliateProduct]
+  getPartnerBrandByID(id: ID!, filters: OutletAndProductFilters): PartnerBrand
+  getPartnerBrandBySalesforceID(salesforceID: String!): PartnerBrand
+  getPartnerBrands(
+    page: Int
+    pageSize: Int
+    filters: PartnerBrandFilters
+  ): PaginatedPartnerBrands
+  getProduct(
+    id: ID!
+    productIDType: ProductIDType!
+    additionalFilters: ProductFilters
+  ): Product
+
+  """
+  Used by BaaS to get a Location Product such as a Fast Track product using a code
+  """
+  getProductByCode(code: String!, filters: ProductFilters): Product
+
+  """
+  dateTime is used to check if outlet is open at given date time
+  """
+  getOutlet(
+    id: ID!
+    outletIDType: outletIDType!
+    additionalFilters: ProductFilters
+    dateTime: String
+    membershipID: String
+    membershipNumber: String
+  ): Outlet
+  getOutlets(
+    page: Int
+    pageSize: Int
+    filters: OutletAndProductFilters
+  ): PaginatedOutlets
+  getOutletTags: OutletTagsList
+  getOutletSet(
+    dataSource: OutletSetDataSourceTypes!
+    outletSetID: BigInt!
+  ): OutletSet
+  getOutletSets(
+    page: Int
+    pageSize: Int
+    dataSource: OutletSetDataSourceTypes
+    outletSetID: BigInt
+  ): PaginatedOutletSets
+  getProductTags: ProductTagsList
+  getProducts(page: Int, pageSize: Int, filters: ProductFilters): [Product]
+
+  """
+  Fetches list of all Facilities
+  """
+  getFacilities(locale: String): [CatalogueBaseFacility]
+
+  """
+  Gets location description for the given location details
+  """
+  getLocationDescription(
+    locationDetails: OutletLocationDetailsInput
+    isLandside: Boolean
+  ): [String]
+
+  """
+  This query returns a list of outlets and products.<br/><br/>
+  Authentication Required: `false`<br/>
+
+  Description: Searches the catalogue based on string input query and filters.
+  DateTime is used to check if outlet is open at a given date time
+  sortBy is used to sort the results based on the given field and order when groupby terminal is not provided
+  """
+  searchCatalogue(
+    query: String
+    searchFilters: [SearchFilterInput]
+    groupBy: GroupByInput
+    dateTime: String
+    page: Int
+    pageSize: Int
+    maxPageSize: Int
+    sortBy: SortByInput
+  ): SearchCatalogueResult
+  searchExperiences(
+    query: String
+    geoLocation: GeoQueryInput
+    searchFilter: SearchFilterInput
+  ): [Experience]
+  getExperienceByID(id: String): Experience
+
+  """
+  This query returns a list of outlets.<br/><br/>
+  Authentication Required: `false`<br/>
+
+  Description: Searches for outlets based on string input query and filters.
+  DateTime is used to check if outlet is open at a given date time
+  sortBy is used to sort the results based on the given field and order when groupby terminal is not provided
+  """
+  searchOutlets(
+    query: String
+    searchFilters: [SearchFilterInput]
+    groupBy: GroupByInput
+    dateTime: String
+    page: Int
+    pageSize: Int
+    maxPageSize: Int
+    sortBy: SortByInput
+  ): SearchOutletResult
+
+  """
+  This query returns a list of airport based on specified query.<br/><br/>
+  Authentication Required: `false`<br/>
+
+  Description: search airports based on query. query can be airport name, city name, country name, airport code etc.
+  also provides a list of nearby airports based on geoLocation
+  """
+  searchAirports(airportQuery: AirportSearchInput): [AirportSearch!]!
+
+  """
+  This query returns a list of search filters.<br/><br/>
+  Authentication Required: `false`<br/>
+
+  Description: For now we are targetting only facilities but in future we will have more filters like terminal etc.<br/><br/>
+  locale is taken as argument but currently not used in  query, will be used in future whenever we have locale specific data
+  """
+  getSearchFilters(locale: String = "en"): [FilterCategories]
+
+  """
+  Description: This query returns a list of locations based on specified query.<br/><br/>
+  Authentication Required: `false`<br/>
+  """
+  searchLocationMetaData(
+    searchInput: LocationSearchInput
+    sortBy: SortByInput
+  ): [LocationMeta!]!
+
+  """
+  Description: This query returns a list of suggested airports based on specified country code or a geoLocation.<br/><br/>
+  """
+  getSuggestedAirports(
+    searchInput: SuggestedAirportInput
+    sortBy: SortByInput
+  ): [AirportSearch!]!
+
+  """
+  Description: Query to search the translation memory index.<br/><br/>
+  """
+  searchTranslationMemory(
+    query: String
+    page: Int
+    pageSize: Int
+    requiredLocales: [String]
+  ): [Translation]
+
+  """
+  A method used for fetching valuation of a given product.
+  Valuation takes into account discounts, entitlements used, etc.
+
+  Works with any type of product
+
+  Role required: SERVICE_USER
+  """
+  getProductValuation(valuationInput: ProductValuationInput!): ProductValuation
+
+  """
+  A method used for fetching client pricing for a given list of products under the deal
+
+  Roles required: SERVICE_USER, SUPER_USER
+  """
+  getClientPricing(clientPricingInput: ClientPricingInput!): [ClientPricing]
+  getConsumer: Consumer
+  getConsumerByID(id: ID!): Consumer
+
+  """
+  Description: This query returns a consumer by email address.<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getConsumerByEmailAddress(emailAddress: String!): Consumer
+
+  """
+  Description: This query returns a consumer by phone number.<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getConsumerByPhoneNumber(phone: String!): Consumer
+
+  """
+  Description: This query returns a consumer by access token.<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER | SUPER_USER
+  ```
+  """
+  getAccessDetails(posData: String!, partner: String): GetAccessDetailsResponse
+
+  """
+  Description: This query returns a membership plan for a given identifier if a match is found.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  """
+  getMembershipPlanByID(id: ID!): MembershipPlan
+
+  """
+  Description: This query retrieves membership plans where the membership number falls within the specified range and prefix.<br/><br/>
+  * membershipNumber - the membership number for which we want to retrieve membership plans.
+  * returnOnlyMigratedDeals - if true, only return membership plans that are already migrated to handle walk ups on the new platform.
+
+  Validation Conditions: Returns all [`MembershipPlans`]({{Types.MembershipPlan}}) where the membershipPrefix matches
+  parsedPrefix(membershipNumber),
+  and at least one element in the membershipRange array has isActive set to true, and its min value is greater than or equal
+  to parsedMembershipNumber, and its max value is less than or equal to parsedMembershipNumber.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getMembershipPlansByMembershipNo(
+    membershipNumber: String!
+    returnOnlyMigratedDeals: Boolean = true
+  ): [MembershipPlan]!
+  getMobileAppDataByAppId(appID: ID!): MobileAppData
+
+  """
+  This query returns a list of most recent searches made by the consumer.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: Retrieves the consumer's recent searches, limit is there but we maximum 5 recent searches can be returned
+  locale is taken as argument but currently not used in any query, will be used in future whenever we have locale specific data
+  """
+  getRecentSearches(limit: Int = 5, locale: String = "en"): [RecentSearches]
+  getFavourites(getFavouritesInput: GetFavouritesInput): PaginatedResponse
+  isFavourite(membershipId: ID!, favouriteEntityId: ID!): Boolean
+  getDMCDetails(membershipId: ID, linkedAccountId: ID): DigitalMembershipDetails
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: Retrieves the consumer's fake door interests, filters are optional and will return all interests if not provided
+  """
+  getFakeDoorInterests(filters: FakeDoorFilters): [FakeDoor]
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+
+  ```
+  CONSUMER
+  ```
+
+  Description: This query returns AWS Cognito JWT token and tokenex webform url.<br/><br/>
+  """
+  getDealEligibilityCardTokenizerUrl: TokenexWebFormDetails
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+
+  ```
+  SUPER_USER
+  ```
+
+  Description: This query if for getting the access to created activation codes.<br/><br/>
+  """
+  getActivationCodes(
+    membershipPlanID: ID!
+    page: Int!
+    pageSize: Int!
+    sourceRequestID: String
+    filters: ActivationCodeFilters
+  ): [ActivationCode]
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+
+  ```
+  SUPER_USER
+  ```
+
+  Description: This query if for getting the access to created activation codes.<br/><br/>
+  """
+  getActivationCodeSummary(
+    membershipPlanID: ID!
+    sourceRequestID: String
+  ): ActivationCodeSummary
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+
+  ```
+  SUPER_USER
+  ```
+
+  Description: This query is for getting a single activation code.<br/><br/>
+  """
+  getActivationCode(activationCode: String!): ActivationCode
+
+  """
+  Authentication Required: `true`
+
+  Role(s) required:
+
+  ```
+  SUPER_USER
+  ```
+
+  Description: This query is for getting a master prefix record by unique master-prefix ID.
+  """
+  getMasterPrefixRecordByID(masterPrefixID: String!): MasterPrefix
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+
+  This query returns a list of user memberships.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: This query returns membership by it's own membershipID
+  """
+  getMembershipByID(membershipID: String!): Membership
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: Retrieves a list of related user memberships.
+  """
+  getUserMemberships(getMembershipsInput: GetUserMembershipsInput): [Membership]
+
+  """
+  DEPRECATED: Please use getPaginatedBookings
+  Getting a list of bookings. This will return all bookings appropriately filtered based on different input parameters.<br/><br/>
+  This is a convenience function for internal portals and super users, it should not be available to consumers.
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  BOOKING_PARTNER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  getBookings(
+    """
+    DEPRECATED: please use product ID instead
+    """
+    experienceID: ID
+    productID: ID
+    status: BookingStatus
+    consumerID: ID
+
+    """
+    Provide a date range in order to filter the get booking results
+    """
+    startDate: Date
+    endDate: Date
+    airport: String
+    membershipID: String
+
+    """
+    Provide status to exclude bookings with provide status
+    """
+    excludeStatus: [BookingStatus]
+  ): [Booking!]!
+    @deprecated(
+      reason: "Returns only the first 50 bookings - Please use getPaginatedBookings instead"
+    )
+  getPaginatedBookings(
+    """
+    This key represents linked account Id of the consumer
+    """
+    actingAccount: String
+
+    """
+    DEPRECATED: please use product ID instead
+    """
+    experienceID: ID
+    productID: ID
+    status: [BookingStatus]
+    consumerID: ID
+
+    """
+    Provide a date range in order to filter the get booking results
+    """
+    startDate: Date
+    endDate: Date
+    page: Int
+    pageSize: Int
+    airport: String
+    membershipID: String
+
+    """
+    Provide status to exclude bookings with provide status
+    """
+    excludeStatus: [BookingStatus]
+
+    """
+    Sorting order
+    """
+    sortOrder: SortOrder
+
+    """
+    Booking types to filter by
+    """
+    bookingTypes: [BookingType]
+  ): PaginatedBookings
+
+  """
+  Same as getPaginatedBookings, but also allows for filtering the results by outlet codes.
+  """
+  getPaginatedBookingsByOutletID(
+    outletID: [ID!]
+    status: [BookingStatus]
+    consumerID: ID
+
+    """
+    Provide a date range in order to filter the get-booking results
+    """
+    startDate: Date
+    endDate: Date
+    page: Int
+    pageSize: Int
+    airport: String
+    membershipID: String
+  ): PaginatedBookings
+  getBookingByID(id: ID!): Booking
+  getAvailableSlots(data: AvailabilityInput): Availability!
+
+  """
+  Getting a payment request data. This will return the payment request data based on the input parameters.
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  BOOKING_PARTNER | SUPER_USER | CONSUMER
+  ```
+  """
+  getPaymentRequestData(data: PaymentRequestInput): PaymentRequestData
+
+  """
+  Description: This query returns the tokenised details of a payment card from the payment provider (after they
+  have been captured by the provider via a payment session) and saves the returned details into the Payment API
+  database before returning them to the client.
+  """
+  getPaymentCard(paymentSessionId: ID!): PaymentCard
+
+  """
+  Description: This query returns a list of tokenised payment cards stored in the Payment API database for the
+  given consumer; note that this call does not make any external calls to the payment provider.
+  """
+  getPaymentCards(paymentProvider: PaymentProvider): [PaymentCard]
+
+  """
+  Description: This query returns a payment session url which the client can use to load the payment provider's
+  embedded form for capturing card details. Various options are available when establishing the session, such as
+  providing a payment context (i.e. amount, currency, etc) to the payment provider as well as options that
+  control whether the payment card should be saved once the payment is taken.
+  """
+  getPaymentSession(
+    paymentSessionContext: PaymentSessionContextInput!
+  ): PaymentSessionResult
+
+  """
+  Description: This query returns the status of a payment that was initiated via a payment session. The payment
+  session was used to allow the payment provider to capture the payment card details and attempt to take payment;
+  this call is required once the payment provider returns control in order to discover whether the payment was
+  authorized or declined.
+  """
+  getPaymentStatus(paymentSessionId: ID!): PaymentStatus
+
+  """
+  Description: This query returns the url of the payment webapp (based on currency) along with all attributes
+  encoded as query parameters, together with a signature to ensure the integrity and authenticity of the URL.
+  """
+  getPaymentWebApp(
+    paymentWebAppContext: PaymentWebAppContextInput!
+  ): PaymentWebApp
+
+  """
+  Description: This query verifies that the signature provided as part of the URL in response to a call to
+  getPaymentWebApp is valid and that the URL is safe to use by the client.
+  """
+  verifyPaymentWebApp(url: String!): VerifySignatureResult!
+  getInvitations(userType: InvitationUserType): [Invitation!]!
+  getInvitationByID(id: ID!): Invitation
+  isInvitationTokenValid(inviteToken: String!): Boolean
+}
+
+type Mutation {
+  """
+  This is used to generate a partner, but if they are already created we will return their details
+  """
+  findOrCreatePartner(partnerInput: PartnerInput): Partner
+
+  """
+  This is used to update a partner
+  """
+  updatePartner(partnerInput: PartnerInput): Partner
+
+  """
+  This is used to disable the partner, by adding the DISABLED_USER role
+  """
+  disablePartner(partnerInput: PartnerInput): Partner
+
+  """
+  This is used to link the provided outletIDs to a secific partner
+  """
+  linkOutlets(partnerID: ID!, outletIDs: [String!]!): Partner
+
+  """
+  This is used to unlink the provided outletIDs from a secific partner
+  """
+  unlinkOutlets(partnerID: ID!, outletIDs: [String!]!): Partner
+
+  """
+  Description: This mutation is used to create a denied visit record. <br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  [`[DeniedVisitInput]`]({{Types.DeniedVisitInput}}) is a required input object and assuming the user is authenticated, the denied visit record will be created.<br/><br/>
+  """
+  createDeniedVisit(deniedVisitInput: DeniedVisitInput!): DeniedVisit
+
+  """
+  Creates a trip. This also authenticates a user through the context that is passed, which is determined by the access check in
+  Cerbos.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  createTripInput is required<br/><br/>
+  """
+  createTrip(tripInput: CreateTripInput): Trip!
+
+  """
+  Deletes a trip based on tripId and logged in consumer.<br/>
+  This also authenticates a user through the context that is passed, which is determined by the access check in Cerbos.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  tripID is required.<br/><br/>
+  """
+  deleteTrip(tripId: String!): DeleteResponse!
+
+  """
+  Updates a trip. This also authenticates a user through the context that is passed, which is determined by the access check in
+  Cerbos.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  UpdateTripInput is required. Pass the fields that needs to be updated. A few fields like id, consumerId and source are
+  restricted from being updated. <br/><br/>
+  """
+  updateTrip(tripInput: UpdateTripInput): Trip!
+
+  """
+  linkBookingInput is required. Connects a confirmed booking with a trip if one exists, otherwise a new trip is created <br/><br/>
+  """
+  linkBookingToTrip(linkBookingInput: LinkBookingTripInput): Trip!
+
+  """
+  Marks an outlet as interested by adding it to trip's interestedOutlets array.<br/>
+  This also authenticates a user through the context that is passed, which is determined by the access check in Cerbos.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  tripId and outletId are required.<br/><br/>
+  """
+  markAsInterested(tripId: String!, outletId: String!): Trip!
+
+  """
+  Marks an outlet as not interested by removing it from trip's interestedOutlets array.<br/>
+  This also authenticates a user through the context that is passed, which is determined by the access check in Cerbos.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  tripId and outletId are required.<br/><br/>
+  """
+  markAsNotInterested(tripId: String!, outletId: String!): Trip!
+
+  """
+  Description: This mutation is used to create an entitlement. This is a convenience method for creating entitlements for testing purposes. It is not intended for production use. <br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  [`[EntitlementInput]`]({{Types.EntitlementInput}}) is a required input object and assuming the user is authenticated, the entitlement will be created.<br/><br/>
+  """
+  createEntitlement(entitlementInput: EntitlementInput!): Entitlement
+
+  """
+  Description: This mutation is used to create a deal entitlement. This is a convenience method for creating deal entitlements for testing purposes. It is not intended for production use. <br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  [`[DealEntitlementInput]`]({{Types.DealEntitlementInput}}) is a required input object and assuming the user is authenticated, the entitlement will be created.<br/><br/>
+  """
+  createDealEntitlement(
+    dealEntitlementInput: DealEntitlementInput!
+  ): DealEntitlement
+
+  """
+  Description: This mutation is used to cleanup test entitlements created during integration testing.  It is not intended for production use. <br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  [`[RemoveTestEntitlementsInput]`]({{Types.RemoveTestEntitlementsInput}}) is a required input object and assuming the user is authenticated, the entitlements will be removed.<br/><br/>
+  """
+  removeTestEntitlements(
+    removeTestEntitlementsInput: RemoveTestEntitlementsInput!
+  ): Int
+
+  """
+  Description: This mutation is used to redeem single or multiple entitlements.<br/><br/>
+  Validation Conditions: [`Entitlements`]({{Types.Entitlement}}) are only valid to be redeemed if it hasn't expired (expiryDate), hasn’t been redeemed already (only for isUnlimited = false),
+  has been issued before or equal to the current date(issueDate), and has redeemable tags that match any of the specified product tags. <br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  """
+  redeemEntitlements(
+    ids: [ID!]!
+    bookingId: String!
+    membershipNumber: String
+  ): [Entitlement!]!
+
+  """
+  Description: This mutation is used to refund single or multiple entitlements.<br/><br/>
+
+  Validation Conditions: Entitlements can be refunded if they have been redeemed (redeemed = true), are associated with the specified booking ID, and belong to the
+  authenticated user. <br/><br/>
+
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  """
+  refundEntitlements(
+    ids: [ID!]!
+    bookingId: String!
+    membershipNumber: String
+  ): [Entitlement!]!
+
+  """
+  Description: This mutation is used to update entitlement records for a primary consumer by their membership number. It allows for the enhancement of entitlement details, by the addition of supplementary consumer IDs. <br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  """
+  updateEntitlementsWithSupplementaryID(
+    primaryMembershipNumber: String!
+    supplementaryMembershipNumber: String!
+    supplementaryConsumerID: String!
+  ): [Entitlement!]!
+
+  """
+  Create a Slot Configuration for a Pre-Agreed Product
+  """
+  createSlotConfiguration(createSlotConfiguration: SlotConfigurationInput!): Id
+
+  """
+  Book a slot for a given Slot Configuration
+  """
+  bookSlots(bookSlotsInput: BookSlotsInput!): [Id]
+
+  """
+  Update a booked slot's state
+  """
+  updateSlotStates(updateSlotStatesInput: UpdateSlotStatesInput!): [Slot]
+
+  """
+  Delete Slot Configurations for a product by a given period
+  """
+  deleteSlotConfigurationsForPeriod(
+    productId: String!
+    startDate: Date!
+    endDate: Date!
+  ): [SlotConfiguration]
+  createProduct(productInput: ProductInput): Product
+  updateProduct(id: ID!, productInput: ProductInput): Product
+  deleteProduct(id: ID!): Product
+  createAffiliateProduct(productInput: AffiliateProductInput): AffiliateProduct
+  updateAffiliateProduct(
+    id: ID!
+    productInput: AffiliateProductInput
+  ): AffiliateProduct
+  createAncillaryProduct(productInput: AncillaryProductInput): AncillaryProduct
+  createOutlet(
+    outletInput: OutletInput
+    outletContentInput: CreateOutletContentInput
+  ): Outlet
+  updateOutlet(
+    id: ID!
+    outletInput: OutletInput
+    outletContentInput: OutletContentInput
+  ): Outlet
+  deleteOutlet(id: ID!): Outlet
+  publishOutlet(id: ID!): Outlet
+  revertOutlet(id: ID!): Outlet
+  createOutletSet(outletSetInput: OutletSetInput): OutletSet
+  createPartnerBrand(partnerBrandInput: PartnerBrandInput): PartnerBrand
+  updatePartnerBrand(
+    id: ID!
+    partnerBrandInput: PartnerBrandInput
+  ): PartnerBrand
+  deletePartnerBrand(id: ID!): PartnerBrand
+  createTranslationMemoryItem(
+    text: String!
+  ): CreateTranslationMemoryItemResponse
+  createTestData(
+    partnerBrandInput: PartnerBrandInput
+    outletInput: OutletInput
+    outletContentInput: CreateOutletContentInput
+    createDraft: Boolean
+    draftChanges: OutletInput
+    draftContentChanges: OutletContentInput
+    createProduct: Boolean
+    productInput: ProductInput
+  ): CatalogueTestDataResponse
+  clearTestData: Boolean
+
+  """
+  This mutation is used to create a consumer. It differs from `findOrCreateConsumer` mutation in two ways:
+
+  - if a consumer is found based on the input properties, this mutation throws error instead of returning the found consumer
+
+  - the property sourceSystem is required. If not provided in the input variables this mutation will throw error
+  """
+  createConsumerIfNotExists(consumerInput: ConsumerInput): Consumer
+
+  """
+  This is to enrol a linked account to available plans
+  """
+  enrolLinkedAccountToAvailablePlans(linkedAccountID: ID!): Boolean
+
+  """
+  This is used to generate a consumer, but if they are already created we will return their details
+  """
+  findOrCreateConsumer(consumerInput: ConsumerInput): Consumer
+
+  """
+  Change or update the consumer record with additional information
+  """
+  updateConsumer(consumerInput: ConsumerInput): Consumer
+
+  """
+  Link the currently logged in cergea consumer account to an existing Collinson account
+  """
+  linkAccount(linkedAccountInput: LinkedAccountInput): LinkedAccount
+
+  """
+  Create a mobile app data record for a new app instance against consumer
+  """
+  createMobileAppData(
+    mobileAppDataInput: CreateMobileAppDataInput
+  ): MobileAppData @deprecated
+  findOrCreateMobileAppData(
+    mobileAppDataInput: CreateMobileAppDataInput
+  ): MobileAppData
+  trackConsumeCodeFailed(
+    mobileAppDataInput: TrackConsumeCodeFailedInput
+  ): MobileAppData
+  resetConsumeCodeFailed(
+    mobileAppDataInput: ResetConsumeCodeFailedInput
+  ): MobileAppData
+
+  """
+  Update mobile app data record with additional information
+  """
+  updateMobileAppData(
+    mobileAppDataInput: UpdateMobileAppDataInput
+  ): MobileAppData
+
+  """
+  Remove favourite for user
+  """
+  removeFavourite(removeFavouriteInput: RemoveFavouriteInput): Favourite
+
+  """
+  Set session - active to false once user make sign out, make sign out by appID
+  """
+  disableUserSession(userSessionInput: DisableUserSessionInput): MobileAppData
+    @deprecated
+  disableEnableUserSession(
+    userSessionInput: DisableEnableUserSessionInput
+  ): MobileAppData
+
+  """
+  Add a favourite entity for user
+  """
+  addFavourite(addFavouriteInput: AddFavouriteInput): Favourite
+
+  """
+  This mutation is used to save searches made by the consumer.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: This mutation is used to save searches made by the consumer.
+  The searchType is a required field.
+  The searchType is an enum and can be one of the following values:
+  ```
+  FLIGHT | AIRPORT | AIRPORT_DEP_DATETIME
+  ```
+  """
+  addRecentSearches(recentSearchInput: RecentSearchInput): RecentSearches
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: This mutation is used to delete a recent search made by the consumer.
+  The id is a required field and assuming the user is authenticated, the recent search will be deleted.<br/><br/>
+  """
+  deleteRecentSearchById(id: ID!): DeleteRecentSearchResponse
+
+  """
+  Description: This mutation is used to create a membership plan.
+  This is a convenience method for creating membership plans for testing purposes. It is not intended for production use.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  [`[MembershipPlanInput]`]({{Types.MembershipPlanInput}}) is a required input object and assuming the user is authenticated,
+  the membership plan will be created.<br/><br/>
+  """
+  createMembershipPlan(membershipPlanInput: MembershipPlanInput): MembershipPlan
+
+  """
+  Description: This mutation is used to enrol a consumer to a membershipPlan(deal)<br/><br/>
+
+  Further details:
+  - A membership record is created in the Consumer API when a consumer is successfully enrolled into a membership plan.
+  - The consumer gains access to the benefits ([`Entitlements`]({{Types.Entitlement}})) associated with
+  the membership plan upon successful enrolment.
+  - A [`MembershipPlan`]({{Types.MembershipPlan}}) is a predefined plan in Salesforce that consumers can enrol in.
+  It outlines the terms, benefits, and constraints of a membership program, serving as a template for individual memberships.
+  - A [`Membership`]({{Types.Membership}}) refers to an individual's enrolment or subscription to a specific plan or program.
+  - A consumer can have multiple memberships, each referencing a membership plan.<br/><br/>
+
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER | SUPER_USER | SERVICE_USER
+  ```
+  [`[EnrolmentInput]`]({{Types.EnrolmentInput}}) is a required input object and assuming the user is authenticated,
+  a consumer will be enrolled into a membership plan.<br/><br/>
+  """
+  membershipEnrolment(enrolmentInput: EnrolmentInput): Membership
+
+  """
+  Authentication Required: `true` <br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: add or update an address for a consumer <br/>
+  """
+  addOrUpdateAddress(addressInput: AddressInput): Address
+
+  """
+  Authentication Required: `true` <br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: delete an address for a consumer <br/>
+  """
+  deleteAddress(deleteAddressInput: DeleteAddressInput): ID
+
+  """
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  Description: This mutation is used to delete all searches made by the consumer. Assuming the user is authenticated.<br/><br/>
+  """
+  deleteAllRecentSearches: DeleteRecentSearchResponse
+
+  """
+  This is used to find an existing user for a membership number or create one
+  """
+  findOrCreateConsumerForMembershipNum(
+    membershipInput: FindOrCreateConsumerForMembershipNumInput
+  ): Consumer
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: add the consumer's fake door interests <br/>
+  """
+  addOrUpdateFakeDoorInterests(fakeDoorInput: FakeDoorInput): FakeDoor
+
+  """
+  Authentication Required: `true`<br/>
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+
+  Description: enrol a consumer into a payement card deal <br/>
+  Return Value: Returns either a url to complete payment authorisation or a memebership <br/>
+  """
+  enrolIntoPaymentCardDeal(
+    tokenisedCardInput: TokenisedCardInput
+  ): PaymentCardDealEnrolmentResponse
+
+  """
+  Description: This mutation is used to create a blocked membership card.
+  This is a convenience method for testing purposes. It is not intended for production use.<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  [`[BlockedMembershipCardInput]`]({{Types.BlockedMembershipCardInput}}) is a required input object and,
+  assuming the user is authenticated, the blocked card will be created.<br/><br/>
+  """
+  createBlockedMembershipCard(
+    blockedMembershipCardInput: BlockedMembershipCardInput
+  ): BlockedMembershipCard
+
+  """
+  Description: this mutation is used to update the profile details of a consumer <br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  [`[ProfileDataInput]`]({{Types.ProfileDataInput}}) is a required input object and assuming the user is authenticated,
+  """
+  updateProfileData(profileInput: ProfileDataInput!): VerificationResponse
+
+  """
+  Description: This mutation is used to verify the OTP for profile update <br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  [`[OtpInput]`]({{Types.OtpInput}}) is a required input object and assuming the user is authenticated,
+  """
+  verifyOtpForProfileUpdate(otpInput: OtpInput): ProfileUpdateResponse
+
+  """
+  Description: enrol a registered consumer into a deal by using an activation code <br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  - if `consumerID` is present on the mutation input:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  - if `consumerID` is not present on the mutation input:
+  ```
+  CONSUMER
+  ```
+  """
+  enrolWithActivationCode(
+    activationCode: String!
+    consumerID: String
+  ): ActivationCodeEnrolResponse
+
+  """
+  Description: create the activation codes for a specific membership plan used to enroll a consumer<br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  """
+  createActivationCodes(
+    membershipPlanID: String!
+    expiryDate: Date!
+    quantity: Int!
+    sourceRequestID: String
+    supplementaryCodesPerPrimary: Int
+  ): ActivationCodeSummary
+
+  """
+  Description: create the supplementary activation codes for a specific primary activation code<br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  """
+  createSupplementaryActivationCodes(
+    primaryActivationCode: String
+    primaryMembershipNumbers: [String]
+    expiryDate: Date!
+    quantity: Int!
+    sourceRequestID: String
+  ): ActivationCodeSummary
+
+  """
+  Description: cancel an activation code that has the status of active<br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  """
+  cancelActivationCode(activationCode: String!): ActivationCode
+
+  """
+  Description: This mutation is used to resend the OTP for profile update <br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  [`[OtpInput]`]({{Types.OtpInput}}) is a required input object and assuming the user is authenticated,
+  """
+  resendOtpForProfileUpdate(
+    profileInput: ProfileDataInput!
+  ): VerificationResponse
+  activateMembership(membershipId: ID, membershipNumber: String): Membership
+
+  """
+  Description: enrol a consumer into a deal by using an hashedPAN (Initial Chase requirement)<br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  - if `consumerID` is present on the mutation input:
+  ```
+  SUPER_USER | SERVICE_USER | PARTNER
+  ```
+  """
+  enrolWithPANDetails(
+    membershipPlanID: String!
+    PANValue: String!
+    PANType: PANTypes!
+    consumerInput: ConsumerInput
+    addressInput: AddressInput
+    expiryDate: ExpiryDateInput
+    secondaryCardholder: Boolean
+  ): HashedPANEnrolmentResponse
+
+  """
+  Description: Create a consumer in SFCRM<br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  Required Fields: consumerId<br/>
+  Returns: Account ID from SFCRM
+  """
+  createSFCRMConsumer(consumerId: ID!): String
+
+  """
+  Description: Update a hashedPAN based enrolment <br>
+  Authentication: REquired: `true`<br>
+  Role(s) required:
+  - if `consumerID` is present on the mutation input:
+  ```
+  SUPER_USER | SERVICE_USER | PARTNER
+  ```
+  Future Scope for input data:
+  CardType, CardExpiry, NameOnCard, Cvv
+  """
+  updatePANBasedMembership(
+    membershipID: ID!
+    PANValue: String!
+    PANType: PANTypes!
+    replacementReason: String
+    expiryDate: ExpiryDateInput
+  ): HashedPANEnrolmentResponse
+
+  """
+  Description: cancel user's card, so that it can be deactivated in case of lost,stolen or fraud cases<br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  """
+  cancelMembership(membershipID: String!, reason: String!): CancellationResponse
+
+  """
+  Description: This mutation is used to create a master-prefix record on the platform side.
+  Authentication Required: `true`
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  [`[MasterPrefixInput]`]({{Types.MasterPrefixInput}}) is a required input object
+  Returns: Unique ID of the created Master Prefix record
+  """
+  createMasterPrefixRecord(
+    masterPrefixInput: MasterPrefixInput!
+  ): MasterPrefixResponse
+
+  """
+  Description: This mutation is used to delete a master-prefix record.
+
+  Authentication Required: `true`
+
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  """
+  deleteMasterPrefixRecord(masterPrefixID: String!): GenericDeleteResponse
+
+  """
+  Description: This mutation is used to update linked account.
+  Authentication Required: `true`
+  """
+  updateLinkedAccount(
+    linkedAccountId: String!
+    updateLinkedAccountInput: UpdateLinkedAccountInput!
+  ): UpdateLinkedAccountResponse
+
+  """
+  Description: upload user support ticket
+  Authentication Required: `false`<br/>
+  """
+  addSupportTicket(
+    supportTicketInput: SupportTicketInput!
+  ): ActivationCodeEnrolResponse
+
+  """
+  Authentication Required: `true`
+
+  Role(s) required:
+  ```
+  CONSUMER
+  ```
+  Description: This mutation is used to request account deletion by the authenticated user.
+  """
+  requestAccountDeletion: AccountDeletionResponse!
+
+  """
+  Create a new booking. The booking will be in an 'initialised' state until it is confirmed.<br/><br/>
+  This also authenticates a user through the context that is passed, which is determined by the access check in Cerbos.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  CONSUMER | BOOKING_PARTNER | SUPER_USER | SERVICE_USER
+  ```
+
+  [`[BookingInput]`]({{Types.BookingInput}}) is a required input object and assuming the user is authenticated,
+  the booking will be created.<br/><br/>
+  """
+  createBooking(bookingInput: BookingInput): Booking
+  confirmAmendment(amendmentInput: AmendmentInput): Amendment
+  deleteBooking(id: ID!): Booking
+  confirmBooking(id: ID!): Booking
+  noShowBooking(id: ID!): Booking
+  payForBooking(id: ID!, paymentInput: PaymentInput): Booking
+
+  """
+  Please provide an array of entitlements, specifying one for each visitor
+  """
+  payForBookingWithEntitlement(
+    bookingId: ID!
+    entitlementIds: [String!]!
+    productId: ID!
+  ): Booking
+  declineBooking(id: ID!): Booking
+
+  """
+  Update the booking record to confirm that the consumer has arrived and checked in to their booking,
+  this should only be done after the booking has reached completed state.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  BOOKING_PARTNER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  checkinBooking(id: ID!, signature: String, boardingPass: String): Booking
+
+  """
+  Revert the check-in operation in case it was done by mistake. For now, it'll always revert back to CONFIRMED
+  because that's the only use case where this method is required. Additional thought should be given as to whether we should
+  implement logic to revert back to CANCELLED or PENDING as well.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  BOOKING_PARTNER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  revertCheckinBooking(id: ID!): Booking
+
+  """
+  Cancel the booking. This will trigger a refund if appropriate of both entitlements or cash.
+  This should only be used when wanting to VOID or cancel a visit after it has been confirmed.<br/><br/>
+
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  BOOKING_PARTNER | SUPER_USER | SERVICE_USER
+  ```
+  """
+  cancelBooking(id: ID!, signature: String): Booking
+
+  """
+  Resend the confirm, cancel or amend booking email to the consumer for particular booking.<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  """
+  resendBookingEmail(bookingID: ID!): Booking
+
+  """
+  Refund a particular booking. This will trigger a refund if appropriate of both entitlements or cash.<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER | SERVICE_USER
+  ```
+  """
+  refundBookingByID(
+    bookingID: ID!
+    refundReasonCode: String
+    refundMessage: String
+  ): Booking
+  updateBookingProductID(experienceID: String!, productID: String!): Boolean
+
+  """
+  Updates the booking record with the given ID with the given properties.<br/><br/>
+  Authentication Required: `true`<br/>
+  Role(s) required:
+  ```
+  SUPER_USER
+  ```
+  """
+  updateBookingByID(
+    id: ID!
+    propertiesToUpdate: UpdateBookingProperties
+  ): Booking
+
+  """
+  Description: This mutation is primarily intended for making payments with a saved card (as opposed to making
+  ad-hoc payments with an unknown card). Consequently both a saved card identifier and a payment context (i.e.
+  amount, currency, etc) are required.
+  """
+  makePayment(makePaymentInput: MakePaymentInput!): PaymentSessionResult
+
+  """
+  Description: This mutation updates the metadata associated with a saved payment card to make it the default
+  payment card when multiple cards exist on file.
+  """
+  defaultPaymentCard(paymentCardId: ID!): ID
+
+  """
+  Description: This mutation removes a saved payment card from a consumer profile. It makes an external call to
+  the payment provider to inform them that the card is to be removed from their tokenization vault, as well as
+  marking the tokenized values in the Payment API database as being deleted.
+  """
+  removePaymentCard(paymentCardId: ID!): ID
+
+  """
+  Description: This mutation initiates the process of refunding a payment. It requires the payment refund context
+  which includes details such as the payment ID, refund amount, and refund type (e.g., INSTANT, STANDARD). The
+  mutation validates the refund context and then processes the refund through the payment provider, returning the
+  result of the refund operation.
+  """
+  initiatePaymentRefund(
+    paymentRefundInput: PaymentRefundInput!
+  ): PaymentRefundResult
+
+  """
+  Description: This mutation is used to update the address associated with a payment card. It requires a payment
+  card address input object which includes the card ID, address line 1, address line 2, city, state, postal code,
+  and country code. The mutation validates the input and then updates the address associated with the payment card.
+  """
+  updateCardAddress(
+    paymentCardAddressInput: PaymentCardAddressInput!
+  ): PaymentAddress
+  createInvitation(invitationInput: InvitationInput): Invitation
+  acceptInvitation(acceptInvitationInput: AcceptInvitationInput!): Invitation
+  cancelInvitation(id: ID!): Invitation
+}
+
+type Partner {
+  id: ID!
+
+  """
+  A list of outlet IDs that the partner is linked to
+  """
+  outletIDs: [String]
+
+  """
+  Full name of the partner
+  """
+  fullName: String
+
+  """
+  The first name of the partner
+  """
+  firstName: String
+
+  """
+  The last name of the partner
+  """
+  lastName: String
+
+  """
+  The email address of the partner
+  """
+  emailAddress: String!
+
+  """
+  Date when the partner was created
+  """
+  createdAt: Date!
+
+  """
+  Date when the partner was last updated
+  """
+  updatedAt: Date!
+}
+
+input PartnerInput {
+  """
+  The email address of the partner
+  """
+  emailAddress: String!
+
+  """
+  The first name of the partner
+  """
+  firstName: String
+
+  """
+  The last name of the partner
+  """
+  lastName: String
+
+  """
+  A list of outlet IDs that the partner will be linked to
+  """
+  outletIDs: [String]
+
+  """
+  The phone number of the partner
+  """
+  phone: String
+}
+
+scalar Date
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+scalar link__Import
+
+scalar federation__FieldSet
+
+type DeniedVisit {
+  bookingId: String
+  consumerId: String
+  deniedVisitId: String!
+  errorCode: String!
+  errorMessage: String!
+  legacyLoungeCode: String
+  localVisitTime: Date
+  membershipNumber: String!
+  membershipPlanId: String
+  metadata: JSONObject
+  productId: String
+  outletId: String
+  updatedAt: Date!
+  metaIntegrationAction: String
+  metaIntegrationSourceSystem: String
+}
+
+input DeniedVisitInput {
+  bookingId: String
+  consumerId: String
+  errorCode: String!
+  errorMessage: String!
+  legacyLoungeCode: String
+  localVisitTime: Date
+  membershipNumber: String!
+  membershipPlanId: String
+  metadata: JSONObject
+  productId: String
+  outletId: String
+  metaIntegrationAction: String
+  metaIntegrationSourceSystem: String
+}
+
+scalar JSONObject
+
+type DeleteResponse {
+  isDeleted: Boolean!
+  message: String!
+}
+
+type Location {
+  """
+  The country name
+  """
+  country: String
+
+  """
+  The ISO country code
+  """
+  isoCountryCode: ISOCountryCode
+
+  """
+  The city
+  """
+  city: String
+
+  """
+  The 3 character location code eg RMF
+  """
+  code: String
+
+  """
+  Whether the location is airside or landside
+  """
+  landside: Boolean
+
+  """
+  The latitude of the location
+  """
+  latitude: Float
+
+  """
+  Legacy description of the location
+  """
+  description: String
+
+  """
+  The longitude of the location
+  """
+  longitude: Float
+
+  """
+  The timezone of the location based on its geo coordinates
+  """
+  timezone: String
+
+  """
+  The name of the location
+  """
+  name: String
+
+  """
+  The terminal of the location
+  """
+  terminal: String
+
+  """
+  List of a terminals which we get from search API
+  """
+  terminals: [TerminalAirport]
+
+  """
+  The type of the location (e.g. AIRPORT)
+  """
+  type: LocationType
+
+  """
+  Location point of interest id
+  """
+  pointOfInterestID: String
+
+  """
+  An open standard file format used for representing geographical features and their attributes
+  """
+  geoJSON: GeoJSON @deprecated(reason: "Never used in the codebase")
+
+  """
+  Metadata about editor and last edited
+  """
+  meta: Meta @deprecated(reason: "Use sectionsMeta.location instead")
+}
+
+enum LocationType {
+  AIRPORT
+  FERRY_STATION
+  RAILWAY_STATION
+}
+
+type GeoJSON {
+  type: String!
+  coordinates: [[[Float!]!]!]!
+}
+
+enum ISOCountryCode {
+  ABW
+  AFG
+  AGO
+  AIA
+  ALA
+  ALB
+  AND
+  ANT
+  ARE
+  ARG
+  ARM
+  ASM
+  ATA
+  ATF
+  ATG
+  AUS
+  AUT
+  AZE
+  BDI
+  BEL
+  BEN
+  BES
+  BFA
+  BGD
+  BGR
+  BHR
+  BHS
+  BIH
+  BLM
+  BLR
+  BLZ
+  BMU
+  BOL
+  BRA
+  BRB
+  BRN
+  BTN
+  BVT
+  BWA
+  CAF
+  CAN
+  CCK
+  CHE
+  CHL
+  CHN
+  CIV
+  CMR
+  COD
+  COG
+  COK
+  COL
+  COM
+  CPV
+  CRI
+  CUB
+  CUW
+  CXR
+  CYM
+  CYP
+  CZE
+  DEU
+  DJI
+  DMA
+  DNK
+  DOM
+  DZA
+  ECU
+  EGY
+  ERI
+  ESH
+  ESP
+  EST
+  ETH
+  FIN
+  FJI
+  FLK
+  FRA
+  FRO
+  FSM
+  GAB
+  GBR
+  GEO
+  GGY
+  GHA
+  GIB
+  GIN
+  GLP
+  GMB
+  GNB
+  GNQ
+  GRC
+  GRD
+  GRL
+  GTM
+  GUF
+  GUM
+  GUY
+  HKG
+  HMD
+  HND
+  HRV
+  HTI
+  HUN
+  IDN
+  IMN
+  IND
+  IOT
+  IRL
+  IRN
+  IRQ
+  ISL
+  ISR
+  ITA
+  JAM
+  JEY
+  JOR
+  JPN
+  KAZ
+  KEN
+  KGZ
+  KHM
+  KIR
+  KNA
+  KOR
+  KWT
+  LAO
+  LBN
+  LBR
+  LBY
+  LCA
+  LIE
+  LKA
+  LSO
+  LTU
+  LUX
+  LVA
+  MAC
+  MAF
+  MAR
+  MCO
+  MDA
+  MDG
+  MDV
+  MEX
+  MHL
+  MKD
+  MLI
+  MLT
+  MMR
+  MNE
+  MNG
+  MNP
+  MOZ
+  MRT
+  MSR
+  MTQ
+  MUS
+  MWI
+  MYS
+  MYT
+  NAM
+  NCL
+  NER
+  NFK
+  NGA
+  NIC
+  NIU
+  NLD
+  NOR
+  NPL
+  NRU
+  NZL
+  OMN
+  PAK
+  PAN
+  PCN
+  PER
+  PHL
+  PLW
+  PNG
+  POL
+  PRI
+  PRK
+  PRT
+  PRY
+  PSE
+  PYF
+  QAT
+  REU
+  ROU
+  RUS
+  RWA
+  SAU
+  SDN
+  SEN
+  SGP
+  SGS
+  SHN
+  SJM
+  SLE
+  SLB
+  SLV
+  SMR
+  SOM
+  SPM
+  SRB
+  SSD
+  STP
+  SUR
+  SVK
+  SVN
+  SWE
+  SWZ
+  SXM
+  SYC
+  SYR
+  TCA
+  TCD
+  TGO
+  THA
+  TJK
+  TKL
+  TKM
+  TLS
+  TON
+  TTO
+  TUN
+  TUR
+  TUV
+  TWN
+  TZA
+  UGA
+  UKR
+  UMI
+  URY
+  USA
+  UZB
+  VAT
+  VCT
+  VEN
+  VGB
+  VIR
+  VNM
+  VUT
+  WLF
+  WSM
+  YEM
+  ZAF
+  ZMB
+  ZWE
+}
+
+type Meta {
+  """
+  The editor who last edited the object
+  """
+  editor: Editor
+
+  """
+  The date the object was last edited
+  """
+  lastEdited: Date
+
+  """
+  Whether it has been edited or not
+  """
+  edited: Boolean @deprecated(reason: "No longer needed")
+}
+
+type Editor {
+  """
+  The editor's first name
+  """
+  firstName: String
+
+  """
+  The editor's last name
+  """
+  lastName: String
+
+  """
+  The editor's organisation
+  """
+  organisation: String
+}
+
+input LocationInput {
+  """
+  The country name
+  """
+  country: String
+
+  """
+  The ISO country code
+  """
+  isoCountryCode: ISOCountryCode
+
+  """
+  The city
+  """
+  city: String
+
+  """
+  The 3 character location code eg RMF
+  """
+  code: String
+
+  """
+  Whether the location is airside or landside
+  """
+  landside: Boolean
+
+  """
+  The latitude of the location
+  """
+  latitude: Float
+
+  """
+  The longitude of the location
+  """
+  longitude: Float
+
+  """
+  The name of the location
+  """
+  name: String
+
+  """
+  The terminal of the location
+  """
+  terminal: String
+
+  """
+  The type of location (e.g. AIRPORT)
+  """
+  type: LocationType
+
+  """
+  Location point of interest id
+  """
+  pointOfInterestID: String
+
+  """
+  The timezone of the location based on its geo coordinates
+  """
+  timezone: String
+  geoJSON: GeoJSONInput @deprecated(reason: "Never used in the codebase")
+  meta: MetaInput
+}
+
+input TransportationInput {
+  """
+  Provider of the transportion, e.g. airline name
+  """
+  provider: String
+
+  """
+  Transportation identifier, e.g. flight number, train number, etc.
+  """
+  indentifier: String @deprecated(reason: "Use identifier instead")
+  identifier: String
+}
+
+input EditorInput {
+  """
+  The editor's first name
+  """
+  firstName: String
+
+  """
+  The editor's last name
+  """
+  lastName: String
+
+  """
+  The editor's organisation
+  """
+  organisation: String
+}
+
+input MetaInput {
+  editor: EditorInput
+}
+
+input GeoJSONInput {
+  type: String!
+  coordinates: [[[Float!]!]!]!
+}
+
+type Tag {
+  accessType: [String]
+  category: [String]
+  isoCountryCode: [String]
+  locationType: [String]
+  outletTier: [String]
+  tier: [String]
+  programme: [String]
+}
+
+type Entitlement {
+  id: ID!
+  createdAt: Date!
+  updatedAt: Date!
+  dealEntitlement: DealEntitlement
+  consumer: Consumer
+  booking: Booking
+  isComplimentaryEntitlement: Boolean
+  isUnlimited: Boolean!
+  issueDate: Date!
+  expiryDate: Date!
+  expired: Boolean!
+  redeemed: Boolean!
+  redeemableTags: [Tag]!
+  redemptionDate: Date
+  redeemedProduct: String
+  membershipID: String
+  membershipNumber: String
+  entitlementDisplayName: String
+  dealEntitlementExternalID: String
+  complimentaryReason: String
+  beneficiary: String
+  overrideBeneficiary: Boolean
+  overrideDealEntitlementQuantity: Boolean
+  refunded: Boolean
+  supplementaryConsumerIDs: [String]
+  priorityOrder: Int
+}
+
+"""
+A record for the sale of a service, this could be either a reservation, walkup or other state.
+"""
+type Booking {
+  id: ID!
+  entitlements: [Entitlement!]!
+
+  """
+  This key represents linked account Id of the consumer
+  """
+  actingAccount: String
+  amendmentEmailTemplateOption: String
+  consumer: Consumer
+  experience: Experience
+  orderID: String
+  invoice: String
+  stripePaymentID: String
+
+  """
+  PaymentID when booking is not paid through Stripe
+  """
+  paymentID: String
+  price: Float
+  price_currency: String @deprecated(reason: "Use priceCurrency")
+  priceCurrency: String
+  bookedFrom(timezoneType: TimezoneType): String!
+  bookedTo(timezoneType: TimezoneType): String!
+  outletTimezoneOffset: Int @deprecated(reason: "Use outletTimezone")
+  outletTimezone: String
+  lastArrival(timezoneType: TimezoneType): String!
+  status: BookingStatus!
+  statusMessage: String
+  statusReasonCode: String
+  createdAt: Date!
+  updatedAt: Date!
+  type: BookingType!
+  guestAdultCount(value: Int = 0): Int!
+  guestChildrenCount(value: Int = 0): Int!
+  guestInfantCount(value: Int = 0): Int!
+  productID: String
+  pdfVersion: String
+
+  """
+  A reference to a partner program, such as Priority Pass, Lounge Key etc.
+  This ties the booking to a particular membership plan for billing.
+  """
+  membershipPlanProgramme: String
+  metadata: JSONObject
+  reference: String!
+  refundID: String
+  refundStatus: String
+  refundedAt: Date
+  passengerNumber: String
+  legacyVisitReference: String
+  legacyPassengerName: String
+
+  """
+  1	SWIPE
+  2	PINPAD
+  3	SCAN
+  4	MANUAL
+  5	NFC
+  6	WEB
+  7	WEBCCARD
+  8	DMCMANUAL
+  9	DMCSCAN
+  """
+  legacyCaptureMethod: Int
+  legacyLoungeProgram: String
+  boardingPass: String
+  signature: String
+  slotIDs: [String]
+  usedEntitlementIds: [String]
+  usedEntitlementsCount: Int
+
+  """
+  This is the platform defined membership identifier,
+  we create this when a consumer is successfully enroled into their deal within the API
+  """
+  membershipID: String
+
+  """
+  The outlet for which booking was created
+  """
+  outlet: Outlet
+
+  """
+  This is the URL where the user will be redirected after a payment is successful if booking type is RESERVATION_FEE_ONLY
+  """
+  checkoutUrl: String @deprecated(reason: "Use checkoutData")
+
+  """
+  This is the checkout data needed for the Stripe payment
+  """
+  checkoutData: PaymentRequestData
+  usedEntitlementsWithCount: [EntitlementsWithCount]
+
+  """
+  This is the Salesforce Case ID for the booking
+  """
+  caseID: String
+}
+
+"""
+A consumer is the end user of our applications that consume our goods and services
+"""
+type Consumer {
+  id: ID!
+  entitlements: [Entitlement!]!
+  fullName: String
+  firstName: String
+  lastName: String
+  phoneCountryCode: String
+
+  """
+  Consumers preferred langauge
+  """
+  locale: String
+  dateOfBirth: Date
+
+  """
+  Even phone and emailAddress is optional, we need to provide atleast one
+  """
+  emailAddress: String
+  phone: String
+  countryOfResidence: String
+
+  """
+  In salesforce we have a record of our consumer to manage their lifecycle and manage marketing
+  """
+  crmId: String
+  linkedAccounts: [LinkedAccount!]!
+  memberships: [Membership!]!
+  mobileAppsData: [MobileAppData]
+  createdAt: Date!
+  updatedAt: Date!
+  favourites: [Favourite!]!
+  addresses: [Address]
+  isEmailVerified: Boolean
+  isPhoneVerified: Boolean
+  isUserMigratedFromOldWorld: Boolean
+  emailVerifiedAt: Date
+  phoneVerifiedAt: Date
+  primaryAuthenticator: String
+  entitlementWithCount: [EntitlementsWithCount]
+  lastUpdatedBy: String
+  remainingAttemptsForActivation: Int
+  lastFailedActivationAttempt: Date
+  enrollmentStatusAC: EnrollmentStatus
+  marketingConsent: Boolean
+  emailMarketingConsent: Boolean
+  partnerMarketingConsent: Boolean
+  phoneMarketingConsent: Boolean
+  enableEmailAlerts: Boolean
+  enableSmsAlerts: Boolean
+  pushConsent: Boolean
+  inAppNotificationConsent: Boolean
+  otpRequestsCount: Int
+  lastOtpRequestAt: Date
+  profileOtpStatus: OtpRequestStatus
+  profileOtpUnblockedAt: Date
+  aceUnblockedAt: Date
+  bookings: [Booking!]!
+  paginatedBookings(
+    endDate: Date
+    page: Int
+    pageSize: Int
+    productId: ID
+    startDate: Date
+    status: BookingStatus
+  ): PaginatedBookings
+}
+
+enum TripSource {
+  MOBILE_APP
+}
+
+type EntitlementsWithCount {
+  entitlements: [Entitlement]!
+  count: Int!
+}
+
+type DealEntitlement {
+  id: ID!
+  entitlementQuantity: String!
+  externalID: String!
+  externalMembershipPlanID: String!
+  dealEntitlementName: String
+  isActive: Boolean!
+  startDate: Date!
+  endDate: Date!
+  expired: Boolean!
+  perVisitLimit: Int!
+  priorityOrder: Int!
+  redeemableTags: [Tag]!
+  beneficiary: String!
+  createdAt: Date!
+  updatedAt: Date!
+  renewalFrequency: String!
+  renewalDate: Date
+  usedEntitlementCount: Int
+  remainingEntitlementCount: Int
+  isComplimentaryEntitlement: Boolean!
+  isUnlimited: Boolean!
+  renewalCyclePeriod: String
+}
+
+enum JourneyLeg {
+  DEPARTURE
+  ARRIVAL
+}
+
+type AirportLocation {
+  code: String
+  name: String
+  terminal: String
+  journeyLeg: JourneyLeg
+}
+
+input AirportLocationInput {
+  code: [String]
+  name: [String]
+  terminal: [String]
+  journeyLeg: [JourneyLeg]
+}
+
+type TerminalAirport {
+  _geoloc: GeoLocation
+  code: String
+  locationBoundary: [GeoLocation]
+  name: String
+}
+
+type GeoLocation {
+  lng: Float
+  lat: Float
+}
+
+input GeoLocationQueryInput {
+  lng: Float
+  lat: Float
+}
+
+"""
+use sort order for sorting of returned items
+"""
+enum SortOrder {
+  ASC
+  DESC
+}
+
+enum FakeDoorOs {
+  ANDROID
+  IOS
+}
+
+enum OutletStatus {
+  ONBOARDING
+  ACTIVE
+  INACTIVE
+  STOP_SALE
+  CLOSED @deprecated(reason: "Value has been removed from PSF")
+  LIVE @deprecated(reason: "Value has been removed from PSF")
+  OLD @deprecated(reason: "Value has been removed from PSF")
+}
+
+enum OutletCategory {
+  EAT
+  FAST_TRACK
+  LOUNGE
+  REFRESH
+  REST
+  RETAIL
+  UNWIND
+  RAIL
+}
+
+enum OtpRequestStatus {
+  ACTIVE
+  BLOCKED
+}
+
+"""
+Input type options, this determines which style of identifier to use
+"""
+enum ProductIDType {
+  """
+  The product code used for Fast Track
+  """
+  code
+  Id
+  partnerProductID
+  salesforceID
+}
+
+"""
+The programme
+"""
+enum Programme {
+  LOUNGE_KEY
+  LOUNGE_PASS
+  PRIORITY_PASS
+  PP_PRIVATE
+}
+
+enum MembershipPlanStatus {
+  Active
+  Cancelled
+  Defunct
+  Draft
+  Inactive
+  Pipeline
+}
+
+enum MembershipStatus {
+  ACTIVE
+  BLOCKED
+  CANCELLED
+  ERROR
+  INACTIVE
+  PROCESSING
+  VERIFICATION
+}
+
+type FlightDetails {
+  departure: Departure
+  arrival: Arrival
+}
+
+input FlightDetailsInput {
+  flightNumber: String!
+  departureDate: Date!
+  carrierCode: String!
+  codeType: String!
+  version: String!
+}
+
+type Arrival {
+  airport: String
+  terminal: String
+  dateTime: FlightDateTime
+}
+
+input CreateTripInput {
+  departure: LocationInput!
+  arrival: LocationInput!
+  departureDateTime: Date!
+  arrivalDateTime: Date
+  transportation: TransportationInput
+  source: TripSource!
+}
+
+type Departure {
+  airport: String
+  terminal: String
+  dateTime: FlightDateTime
+}
+
+type FlightDateTime {
+  local: String
+  utc: String
+}
+
+input FlightSearchInput {
+  departureAirport: String!
+  arrivalAirport: String
+  travelDate: Date!
+}
+
+type FlightSearchResult {
+  airlineName: String
+  flightNumber: String
+  departureDateTime: Date
+  departureDateTimeUTC: String
+    @deprecated(reason: "Use departureDateTime instead")
+  departureDateTimeLocal: Date
+  terminal: String
+}
+
+type LoungeBusyness {
+  level: Int!
+}
+
+input LoungeBusynessInput {
+  start: String
+  end: String
+  loungeCode: String
+}
+
+input Filters {
+  departureDateTime: Date
+  status: [TripState]
+}
+
+type Trip {
+  id: String
+
+  """
+  Departure location of the trip
+  """
+  departure: Location
+
+  """
+  Departure date time of the trip
+  """
+  departureDateTime: Date
+
+  """
+  Local time of departure airport
+  """
+  departureDateTimeLocal: Date
+
+  """
+  Arrival location of the trip
+  """
+  arrival: Location
+
+  """
+  Arrival date time of the trip
+  """
+  arrivalDateTime: Date
+
+  """
+  Local time of arrival airport
+  """
+  arrivalDateTimeLocal: Date
+
+  """
+  The ID and provider for the transportation used for the trip. For e.g. flightNumber or trainNumber
+  """
+  transportation: Transportation
+
+  """
+  List of booking id's made in this trip
+  """
+  bookings: [String]
+
+  """
+  Outlets marked as interested by user for the trip
+  """
+  interestedOutlets: [String]
+
+  """
+  Status of the trip. For e.g. completed, in_progress
+  """
+  status: TripState
+
+  """
+  From where the trip was created. For e.g. mobile_app
+  """
+  source: TripSource
+
+  """
+  consumer who created the trip
+  """
+  consumer: Consumer
+
+  """
+  determine if current trip was deleted
+  """
+  isDeleted: Boolean!
+}
+
+input LinkBookingTripInput {
+  bookingID: String!
+  tripInput: CreateTripInput!
+}
+
+input UpdateTripInput {
+  id: String!
+  departure: LocationInput
+  arrival: LocationInput
+  departureDateTime: Date
+  arrivalDateTime: Date
+  transportation: TransportationInput
+}
+
+type PageData {
+  currentPage: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  totalPages: Int!
+}
+
+type PaginatedResult {
+  items: [Trip]!
+  pageInfo: PageData!
+  totalItemCount: Int!
+}
+
+type Transportation {
+  """
+  Provider of the transportion, e.g. airline name
+  """
+  provider: String
+
+  """
+  Transportation identifier, e.g. flight number, train number, etc.
+  """
+  indentifier: String @deprecated(reason: "Use identifier instead")
+  identifier: String
+}
+
+enum TripState {
+  COMPLETED
+  DELETED @deprecated
+  UPCOMING
+}
+
+input EntitlementInput {
+  beneficiary: String
+  consumerID: String!
+  dealEntitlementExternalID: String
+  expiryDate: Date!
+  externalID: String!
+  isUnlimited: Boolean!
+  issueDate: Date
+  redeemableTags: [TagInput]!
+  membershipID: String
+  entitlementDisplayName: String
+  membershipNumber: String
+  complimentaryReason: String
+  overrideBeneficiary: Boolean
+  overrideDealEntitlementQuantity: Boolean
+  refunded: Boolean
+  supplementaryConsumerIDs: [String]
+}
+
+input GetEntitlementsFilter {
+  consumerID: String
+  dealEntitlementExternalID: String
+  expired: Boolean
+  isUnlimited: Boolean
+  redeemed: Boolean
+  tags: TagInput
+  redeemedProduct: String
+  membershipID: String
+  programme: Programme
+  refunded: Boolean
+  bookingID: ID
+}
+
+input TagInput {
+  accessType: [String]
+  category: [String]
+  isoCountryCode: [String]
+  locationType: [String]
+  outletTier: [String]
+  tier: [String]
+  programme: [String]
+}
+
+input DealEntitlementInput {
+  beneficiary: String!
+  entitlementQuantity: String!
+  endDate: Date!
+  externalID: String!
+  externalMembershipPlanID: String!
+  isActive: Boolean!
+  isComplimentaryEntitlement: Boolean!
+  isUnlimited: Boolean!
+  startDate: Date!
+  redeemableTags: [TagInput]!
+  renewalFrequency: String!
+  dealEntitlementName: String
+  perVisitLimit: Int!
+  priorityOrder: Int!
+  renewalCyclePeriod: String!
+}
+
+input RemoveTestEntitlementsInput {
+  entitlementIDsToRemove: [String]!
+}
+
+type ProductEntitlements {
+  entitlements: [Entitlement]!
+  totalEntitlementCount: Int!
+  guestEntitlementCount: Int!
+  memberEntitlementCount: Int!
+}
+
+"""
+A Membership represents the association between a consumer and a membership plan(deal)
+"""
+type Membership {
+  id: ID!
+  endDate: Date
+  externalID: String!
+  activationDate: Date!
+  consumer: Consumer!
+  dealEntitlements: [DealEntitlement]!
+  membershipNumber: String!
+  membershipPlan: MembershipPlan!
+  analytics: JSONObject
+  createdAt: Date!
+  updatedAt: Date!
+
+  """
+  this will be added if consumer is enrolling with a card
+  """
+  card: CardData
+
+  """
+  Digital membership card barcode for the memberhsip
+  """
+  barcode: String
+
+  """
+  Linked account for the membership
+  """
+  linkedAccount: LinkedAccount
+  membershipStatus: MembershipStatus!
+
+  """
+  Indicates if this is a supplementary membership
+  """
+  isSupplementary: Boolean
+
+  """
+  The membership number of the primary membership if this is a supplementary membership
+  """
+  primaryMembershipNumber: String
+
+  """
+  Primary membership associated with the supplementary membership
+  """
+  primaryMembership: Membership
+
+  """
+  Supplementary memberships associated with the primary membership
+  """
+  supplementaryMemberships: [Membership]
+  inactiveCancelledDate: Date!
+}
+
+type DealEntitlementForActiveProducts {
+  dealEntitlementName: String
+  count: Int @deprecated(reason: "Use totalCount instead")
+  totalCount: Int
+  applicableProducts: [String]
+  isActive: Boolean
+  isComplimentaryEntitlement: Boolean
+  isUnlimited: Boolean
+  perVisitLimit: Int
+  renewalDate: Date
+  renewalFrequency: String
+  usedEntitlementCount: Int
+  remainingEntitlementCount: Int
+}
+
+enum Client {
+  PPASS700065
+}
+
+type AdditionalDescriptionValue {
+  id: String!
+  text: String!
+}
+
+type OutletAdditionalDescription {
+  conditions: [AdditionalDescriptionValue]
+  importantInformation: [AdditionalDescriptionValue]
+  location: [AdditionalDescriptionValue]
+}
+
+input OutletAdditionalDescriptionInput {
+  conditions: [String]
+  importantInformation: [String]
+  location: [String]
+}
+
+type CatalogueBaseFacility {
+  id: String!
+  name: String!
+}
+
+input CreateOutletContentInput {
+  """
+  Access times legacy description
+  """
+  accessTimesLegacyDescription: String!
+
+  """
+  Conditions legacy description
+  """
+  conditionsLegacyDescription: String!
+
+  """
+  Conditions for the outlet
+  """
+  conditions: ConditionsInput!
+
+  """
+  Important information about the outlet
+  """
+  importantInformationLegacyDescription: String!
+
+  """
+  New location data of the outlet
+  """
+  locationDetails: OutletLocationDetailsInput!
+
+  """
+  Location legacy Description
+  """
+  locationLegacyDescription: String!
+
+  """
+  Outlet images
+  """
+  media: ImagesInput!
+
+  """
+  Name of the outlet
+  """
+  name: String!
+}
+
+input OutletContentInput {
+  """
+  Images for the outlet
+  """
+  media: ImagesInput
+
+  """
+  Conditions for the outlet
+  """
+  conditions: ConditionsInput
+
+  """
+  Location details for the outlet
+  """
+  locationDetails: OutletLocationDetailsInput
+}
+
+type CatalogueFacility {
+  id: String!
+  name: String!
+  isAvailable: Boolean!
+  details: FacilityDetails
+}
+
+type DraftCatalogueFacility {
+  id: String!
+  name: String!
+  isAvailable: Boolean!
+  details: FacilityDetails
+}
+
+type CatalogueLegacyFacility {
+  id: String!
+  name: String!
+  isAvailable: Boolean!
+}
+
+input BasicFacilityInput {
+  isAvailable: Boolean!
+}
+
+input FacilityWithExtraPaymentInput {
+  isAvailable: Boolean!
+  details: FacilityWithExtraPaymentDetailsInput!
+}
+
+input FacilityWithExtraPaymentDetailsInput {
+  extraPaymentRequired: Boolean!
+}
+
+input RunwayViewFacilityInput {
+  isAvailable: Boolean!
+  details: RunwayViewFacilityDetailsInput!
+}
+
+input RunwayViewFacilityDetailsInput {
+  runwayViewFromAllSeats: Boolean!
+}
+
+input ConferenceFacilityInput {
+  isAvailable: Boolean!
+  details: ConferenceFacilityDetailsInput!
+}
+
+input ConferenceFacilityDetailsInput {
+  extraPaymentRequired: Boolean!
+  preBookingRequired: Boolean!
+}
+
+input MagazinesFacilityInput {
+  isAvailable: Boolean!
+  details: MagazinesFacilityDetailsInput!
+}
+
+input MagazinesFacilityDetailsInput {
+  digitalFormatMagazines: Boolean!
+  paperFormatMagazines: Boolean!
+}
+
+input FacilityWithCountLimitInput {
+  isAvailable: Boolean!
+  details: FacilityWithCountLimitDetailsInput!
+}
+
+input FacilityWithCountLimitDetailsInput {
+  limit: Int!
+}
+
+input FacilitiesInput {
+  aLaCarteMenu: FacilityWithExtraPaymentInput
+  airConditioning: BasicFacilityInput
+  alcoholicDrinks: FacilityWithExtraPaymentInput
+  alcoholicDrinksAgeLimit: FacilityWithCountLimitInput
+  alcoholicDrinksPremium: FacilityWithExtraPaymentInput
+  checkInFacility: FacilityWithExtraPaymentInput
+  childrensPlayArea: BasicFacilityInput
+  cinema: FacilityWithExtraPaymentInput
+  coldBuffet: FacilityWithExtraPaymentInput
+  complimentaryAlcoholicDrinksNumber: FacilityWithCountLimitInput
+  complimentaryDrinksLimitedBeer: BasicFacilityInput
+  complimentaryDrinksLimitedBeerWine: BasicFacilityInput
+  complimentaryDrinksNumber: FacilityWithCountLimitInput
+  conferenceFacilities: ConferenceFacilityInput
+  dayBeds: FacilityWithExtraPaymentInput
+  digitalMembershipCard: BasicFacilityInput
+  disabledAccess: BasicFacilityInput
+  fastTrackLane: FacilityWithExtraPaymentInput
+  flightInformationMonitor: BasicFacilityInput
+  gamesRoom: FacilityWithExtraPaymentInput
+  golfCartService: FacilityWithExtraPaymentInput
+  gym: FacilityWithExtraPaymentInput
+  hotBuffet: FacilityWithExtraPaymentInput
+  hotDrinks: FacilityWithExtraPaymentInput
+  ipadTablet: FacilityWithExtraPaymentInput
+  luggageStorage: FacilityWithExtraPaymentInput
+  massageChairs: FacilityWithExtraPaymentInput
+  napRoom: FacilityWithExtraPaymentInput
+  newspapersMagazines: MagazinesFacilityInput
+  prayerRoom: FacilityWithExtraPaymentInput
+  printers: FacilityWithExtraPaymentInput
+  quietArea: FacilityWithExtraPaymentInput
+  rechargingStation: FacilityWithExtraPaymentInput
+  shoeShine: FacilityWithExtraPaymentInput
+  showers: FacilityWithExtraPaymentInput
+  sleepPods: FacilityWithExtraPaymentInput
+  snacks: FacilityWithExtraPaymentInput
+  softDrinks: FacilityWithExtraPaymentInput
+  spaSalon: FacilityWithExtraPaymentInput
+  telephone: FacilityWithExtraPaymentInput
+  televisions: BasicFacilityInput
+  viewOfRunway: RunwayViewFacilityInput
+  washrooms: BasicFacilityInput
+  wifi: BasicFacilityInput
+  workstations: FacilityWithExtraPaymentInput
+}
+
+input LegacyFacilitiesInput {
+  airConditioning: Boolean
+  alcoholicDrinks: Boolean
+  conferenceFacilities: Boolean
+  digitalMembershipCard: Boolean
+  disabledAccess: Boolean
+  flightInformationMonitor: Boolean
+  newspapersMagazines: Boolean
+  showers: Boolean
+  softDrinks: Boolean
+  televisions: Boolean
+  wifi: Boolean
+}
+
+type FacilityDetails {
+  ageLimit: Int
+  complimentaryDrinks: Int
+  complimentaryAlcoholicDrinks: Int
+  extraPaymentRequired: Boolean
+  preBookingRequired: Boolean
+  runwayViewFromAllSeats: Boolean
+  digitalFormatMagazines: Boolean
+  paperFormatMagazines: Boolean
+}
+
+type Outlet {
+  """
+  Times during which the outlet is accessible
+  """
+  accessTimes: CatalogueAccessTimes
+
+  """
+  Additional description of the outlet
+  """
+  additionalDescription: OutletAdditionalDescription
+
+  """
+  Important information about the outlet
+  """
+  importantInformation: OutletImportantInformation
+  id: ID!
+
+  """
+  A list of ancillary products available at the outlet
+  """
+  ancillaryProducts: [AncillaryProduct]!
+
+  """
+  The conditions of the outlet
+  """
+  conditions: CatalogueConditions
+
+  """
+  The name of the outlet
+  """
+  name: String!
+
+  """
+  The legacy code of the outlet (Lounge Code) eg LHR13. Deprecated, use 'code' instead.
+  """
+  legacyCode: String @deprecated(reason: "Use 'code' instead")
+
+  """
+  The code of the outlet. For lounges this is the lounge code.
+  """
+  code: String
+
+  """
+  The email address for reservations
+  """
+  reservationEmail: String
+
+  """
+  The Salesforce ID of the outlet
+  """
+  salesforceID: String!
+
+  """
+  The status of the outlet whether it is active or not
+  """
+  status: OutletStatus!
+
+  """
+  The tier of the outlet for example Gold or Black
+  """
+  tier: Tier
+
+  """
+  Types of passengers that can access the outlet
+  """
+  passengerTypes: [PassengerType]
+
+  """
+  This is used for tagging purposes only, to identify specific outlets that can be used by a client.
+  """
+  client: Client
+
+  """
+  Category of the outlet
+  """
+  category: OutletCategory!
+
+  """
+  Display information about the outlet
+  """
+  display: Display
+
+  """
+  Draft version of the outlet
+  """
+  draft: OutletDraftVersion
+
+  """
+  List of the outlet's facilities
+  """
+  facilities: [CatalogueFacility]
+
+  """
+  List of legacy facilities from PPBO
+  """
+  legacyFacilities: [CatalogueLegacyFacility]
+
+  """
+  The location of the outlet
+  """
+  location: Location!
+
+  """
+  The location details of the outlet
+  """
+  locationDetails: OutletLocationDetails
+
+  """
+  Outlet images
+  """
+  media: CatalogueMedia
+
+  """
+  Metadata about editor and last edited
+  """
+  meta: CatalogueMeta
+
+  """
+  The partner brand of the outlet
+  """
+  partnerBrand: PartnerBrand!
+
+  """
+  A list of products available at the outlet
+  """
+  products: [Product]!
+
+  """
+  Object containing outlet tags (tier, isoCountryCode, locationType)
+  """
+  tags: OutletTags
+
+  """
+  Metadata about the outlet sections
+  """
+  sectionsMeta: SectionsMeta
+
+  """
+  The sections that have been edited during an update
+  """
+  editedSections: [String]
+
+  """
+  Outlet open status based on passed date time
+  """
+  openStatus: OutletOpenStatus
+
+  """
+  Max guests for outlet
+  """
+  maxGuests: String
+
+  """
+  Max stay hours for outlet
+  """
+  maxStayHours: String
+  dealEntitlements: [DealEntitlementForActiveProducts]
+
+  """
+  membsership that can be used to access the outlet
+  """
+  membership: Membership
+
+  """
+  Current stage of outlet, can be PUBLISHED, DRAFT OR INCOMPLETE
+  """
+  workflowStage: OutletWorkflowStage
+}
+
+input OutletAndProductFilters {
+  outlet: OutletFilters
+  product: ProductFilters
+}
+
+scalar BigInt
+
+input OutletFilters {
+  country: [String]
+  locationType: [LocationType]
+  tier: [Tier]
+  isoCountryCode: [ISOCountryCode]
+  region: [OutletRegion]
+
+  """
+  This filter is treated as an AND filter.
+  If multiple passenger types are passed (e.g. INTERNATIONAL and DOMESTIC), the outlet must include all of them.
+  """
+  passengerTypes: [PassengerType]
+  client: [Client]
+  status: [OutletStatus]
+  outletSetID: BigInt
+
+  """
+  This filter will be overwritten if passed together with outletSetID
+  """
+  codes: [ID]
+
+  """
+  DEPRECATED: please use codes instead
+  """
+  legacyCodes: [ID]
+  workflowStage: [OutletWorkflowStage]
+}
+
+"""
+There are 4 options for the input type, this determines which style of identifier to use
+"""
+enum outletIDType {
+  code
+  Id
+  salesforceID
+
+  """
+  @deprecated legacyCode is deprecated and will be removed in future versions. Use code instead.
+  """
+  legacyCode
+}
+
+type code {
+  code: String
+}
+
+type salesforceID {
+  salesforceID: String
+}
+
+type legacyCode {
+  legacyCode: String
+}
+
+input OutletInput {
+  """
+  The name of the outlet
+  """
+  name: String!
+
+  """
+  The legacy code of the outlet (Lounge Code) eg LHR13. Deprecated, use 'code' instead.
+  """
+  legacyCode: String @deprecated(reason: "Use 'code' instead")
+
+  """
+  The code of the outlet. For lounges this is the lounge code.
+  """
+  code: String
+
+  """
+  The email address for reservations
+  """
+  reservationEmail: String
+
+  """
+  The Salesforce ID of the outlet
+  """
+  salesforceID: String!
+
+  """
+  The status of the outlet whether it is active or not
+  """
+  status: OutletStatus!
+
+  """
+  The tier of the outlet for example Gold or Black
+  """
+  tier: Tier
+
+  """
+  Types of passengers that can access the outlet
+  """
+  passengerTypes: [PassengerType]
+
+  """
+  This is used for tagging purposes only, to identify specific outlets that can be used by a client.
+  """
+  client: Client
+
+  """
+  Category of the outlet
+  """
+  category: OutletCategory
+
+  """
+  Access times for the outlet
+  """
+  accessTimes: AccessTimesInput!
+
+  """
+  Additional description that can con be specified in the managed choices.
+  Expects ids of translations stored in the translation memory
+  """
+  additionalDescription: OutletAdditionalDescriptionInput
+
+  """
+  Facilities available at the outlet
+  """
+  facilities: FacilitiesInput
+
+  """
+  The location of the outlet
+  """
+  location: LocationInput!
+  legacyFacilities: LegacyFacilitiesInput
+
+  """
+  Metadata about editor and last edited
+  """
+  meta: MetaInput
+
+  """
+  Metadata about each individual section of an outlet
+  """
+  sectionsMeta: SectionsMetaInput
+
+  """
+  The partner brand of the outlet
+  """
+  partnerBrand: ID!
+
+  """
+  The sections that have been edited during an update
+  """
+  editedSections: [String]
+}
+
+input OutletKey {
+  id: ID!
+}
+
+enum OutletRegion {
+  APAC
+  AMERICAS
+  EMEA
+  GLOBAL
+}
+
+type OutletTags {
+  country: String
+  locationType: LocationType
+  tier: Tier
+  isoCountryCode: ISOCountryCode
+  region: OutletRegion
+  passengerTypes: [PassengerType]
+
+  """
+  This field is used to identify specific outlets that are not retrievable via the
+  other available tags within the product catalogue.
+  """
+  client: Client
+}
+
+type OutletTagsList {
+  country: [String]
+  locationType: [LocationType]
+  tier: [Tier]
+  isoCountryCode: [ISOCountryCode]
+  region: [OutletRegion]
+  passengerTypes: [PassengerType]
+  costZone: [CostZone]
+  client: [Client]
+}
+
+type PaginatedOutlets {
+  items: [Outlet]
+  pageInfo: PageInfo
+  totalItemCount: Int
+}
+
+enum CostZone {
+  COST_ZONE_A
+  COST_ZONE_B
+  COST_ZONE_C
+}
+
+type Variation {
+  type: VariationType!
+  date: String!
+}
+
+input VariationInput {
+  type: VariationType!
+  date: String!
+}
+
+enum VariationType {
+  ANNUAL
+  DATE_SPECIFIC
+}
+
+type SectionsMeta {
+  """
+  Meta data for the location section
+  """
+  location: CatalogueMeta
+
+  """
+  Meta data for the media section
+  """
+  media: CatalogueMeta
+
+  """
+  Meta data for the facilities section
+  """
+  facilities: CatalogueMeta
+
+  """
+  Meta data for the conditions section
+  """
+  conditions: CatalogueMeta
+
+  """
+  Meta data for the access times section
+  """
+  accessTimes: CatalogueMeta
+
+  """
+  Meta data for the important info section
+  """
+  importantInfo: CatalogueMeta
+}
+
+enum AdmissionPer {
+  adult
+  cardholder
+}
+
+enum SmokingPolicy {
+  smokingAreaInsideLounge
+  smokingRoomInsideLounge
+}
+
+type ChildrenAdmittedFreeNumber {
+  maximum: Int
+  per: AdmissionPer
+}
+
+type childrenAdmittedFreeAge {
+  from: Int
+  to: Int
+}
+
+type DressCodeOptions {
+  noAboveKneeSkirtsOrDresses: Boolean!
+  noBaseballCaps: Boolean!
+  noSandals: Boolean!
+  noShorts: Boolean!
+  noSleevelessTops: Boolean!
+  noSportswear: Boolean!
+  noTShirts: Boolean!
+  smartCasual: Boolean!
+}
+
+type CatalogueConditions {
+  allowedSmokingPolicy: SmokingPolicy
+  childrenAdmittedFreeNumber: ChildrenAdmittedFreeNumber!
+  childrenAdmittedFreeAge: childrenAdmittedFreeAge
+  childrenAllowed: Boolean!
+  childrenMustBeAccompaniedUnderAge: Int
+  description: String!
+  dressCodeOptions: DressCodeOptions!
+  hasDressCode: Boolean!
+  minimumChildAge: Int
+  smokingAllowed: Boolean!
+}
+
+input DressCodeOptionsInput {
+  noAboveKneeSkirtsOrDresses: Boolean!
+  noBaseballCaps: Boolean!
+  noSandals: Boolean!
+  noShorts: Boolean!
+  noSleevelessTops: Boolean!
+  noSportswear: Boolean!
+  noTShirts: Boolean!
+  smartCasual: Boolean!
+}
+
+input ChildrenAdmittedFreeNumberInput {
+  maximum: Int
+  per: AdmissionPer
+}
+
+input ChildrenAdmittedFreeAgeInput {
+  from: Int
+  to: Int
+}
+
+input ConditionsInput {
+  allowedSmokingPolicy: SmokingPolicy
+  childrenAdmittedFreeNumber: ChildrenAdmittedFreeNumberInput!
+  childrenAdmittedFreeAge: ChildrenAdmittedFreeAgeInput
+  childrenAllowed: Boolean!
+  childrenMustBeAccompaniedUnderAge: Int
+  dressCodeOptions: DressCodeOptionsInput!
+  hasDressCode: Boolean!
+  minimumChildAge: Int
+  smokingAllowed: Boolean!
+}
+
+type OutletImportantInformation {
+  description: String
+}
+
+type CatalogueAccessTimes {
+  """
+  Access hours for each day of the week, allows for multiple time periods in 24 hour format
+  """
+  accessHours: CatalogueAccessHours!
+
+  """
+  Legacy description
+  """
+  description: String
+
+  """
+  List of dates on which the outlet is closed or has different hours
+  """
+  exceptions: [CatalogueExceptions]
+
+  """
+  Times that access may be restricted
+  """
+  peakHours: [CatalogueTimePeriod]
+
+  """
+  The date when this outlet will become available to Collinson programme consumers
+  """
+  activationDate: String
+
+  """
+  The date when this outlet will permanently close
+  """
+  permanentClosureDate: String
+}
+
+type CatalogueAccessHours {
+  monday: [CatalogueTimePeriod]
+  tuesday: [CatalogueTimePeriod]
+  wednesday: [CatalogueTimePeriod]
+  thursday: [CatalogueTimePeriod]
+  friday: [CatalogueTimePeriod]
+  saturday: [CatalogueTimePeriod]
+  sunday: [CatalogueTimePeriod]
+}
+
+input AccessHoursInput {
+  friday: [TimePeriodInput]
+  monday: [TimePeriodInput]
+  saturday: [TimePeriodInput]
+  sunday: [TimePeriodInput]
+  thursday: [TimePeriodInput]
+  tuesday: [TimePeriodInput]
+  wednesday: [TimePeriodInput]
+}
+
+input AccessTimesInput {
+  accessHours: AccessHoursInput!
+  exceptions: [ExceptionsInput]
+  peakHours: [TimePeriodInput]
+  activationDate: String
+  permanentClosureDate: String
+}
+
+type CatalogueTimePeriod {
+  startTime: String!
+  endTime: String!
+}
+
+input TimePeriodInput {
+  startTime: String!
+  endTime: String!
+}
+
+type CatalogueAsset {
+  id: String
+  contentType: String
+  description: String
+  fileName: String
+  height: Int
+  title: String
+  url: String
+  width: Int
+}
+
+input ImageInput {
+  """
+  Images for the outlet
+  """
+  asset: AssetInput
+
+  """
+  Metadata for the image
+  """
+  metadata: AssetMetadataInput
+}
+
+input ImagesInput {
+  """
+  The outlet's images collection
+  """
+  images: [ImageInput]
+
+  """
+  The outlet's main image
+  """
+  mainImage: ImageInput
+}
+
+type CatalogueAssetWithMetadata {
+  asset: CatalogueAsset
+  metadata: Meta
+}
+
+type CatalogueMedia {
+  mainImage: CatalogueAssetWithMetadata
+  images: [CatalogueAssetWithMetadata]
+}
+
+input SectionsMetaInput {
+  """
+  Meta data for the location section
+  """
+  location: MetaInput
+
+  """
+  Meta data for the media section
+  """
+  media: MetaInput
+
+  """
+  Meta data for the facilities section
+  """
+  facilities: MetaInput
+
+  """
+  Meta data for the conditions section
+  """
+  conditions: MetaInput
+
+  """
+  Meta data for the access times section
+  """
+  accessTimes: MetaInput
+
+  """
+  Meta data for the important info section
+  """
+  importantInfo: MetaInput
+}
+
+type CatalogueExceptions {
+  """
+  List of hours in 24 hour format
+  """
+  accessHours: [CatalogueTimePeriod]
+
+  """
+  Format: MM-DD
+  """
+  date: String
+
+  """
+  Format: MM-DD
+  """
+  startDate: String
+
+  """
+  Format: MM-DD
+  """
+  endDate: String
+
+  """
+  Type of exception
+  """
+  exceptionType: ExceptionType!
+
+  """
+  Whether the outlet is open or closed
+  """
+  isOpen: Boolean!
+  name: String
+
+  """
+  Priority level: Used to work out if an outlet is open or closed when there are overlapping or contradictory exceptions.
+  Lowest number is the lowest priority
+  """
+  priority: Int
+
+  """
+  Whether the period/date is Recurring or not
+  """
+  isRecurring: Boolean!
+}
+
+input ExceptionsInput {
+  """
+  Format: [HH-MM]
+  """
+  accessHours: [TimePeriodInput]
+
+  """
+  Format: MM-DD
+  """
+  date: String
+
+  """
+  Format: MM-DD
+  """
+  startDate: String
+
+  """
+  Format: MM-DD
+  """
+  endDate: String
+
+  """
+  Type of exception
+  """
+  exceptionType: ExceptionType!
+
+  """
+  Whether the outlet is open or closed
+  """
+  isOpen: Boolean!
+  name: String
+
+  """
+  Priority level: Used to work out if an outlet is open or closed when there are overlapping or contradictory exceptions.
+  Lowest number is the lowest priority
+  """
+  priority: Int
+
+  """
+  Whether the period/date is Recurring or not
+  """
+  isRecurring: Boolean!
+}
+
+enum ExceptionType {
+  RECURRING_DATE_PERIOD
+  DATE_PERIOD
+  RECURRING_DATE
+  SPECIFIC_DATE
+  CLOSED_UNTIL_FURTHER_NOTICE
+  MODIFIED_UNTIL_FURTHER_NOTICE
+}
+
+enum PassengerType {
+  DOMESTIC
+  INTERNATIONAL
+  SCHENGEN
+  NON_SCHENGEN
+  US_TRANSBORDER
+  BOTH @deprecated(reason: "Added for backwards compatibility only")
+  UNKNOWN @deprecated(reason: "Added for backwards compatibility only")
+}
+
+enum OutletOpenStatus {
+  CLOSED
+  OPEN
+  UNAVAILABLE
+}
+
+type OutletDraftVersion {
+  """
+  Times during which the outlet is accessible
+  """
+  accessTimes: CatalogueAccessTimes
+
+  """
+  Additional description of the outlet
+  """
+  additionalDescription: OutletAdditionalDescription
+
+  """
+  Important information about the outlet
+  """
+  importantInformation: OutletImportantInformation
+  id: ID!
+
+  """
+  The conditions of the outlet
+  """
+  conditions: CatalogueConditions
+
+  """
+  The name of the outlet
+  """
+  name: String!
+
+  """
+  The legacy code of the outlet (Lounge Code) eg LHR13. Deprecated, use 'code' instead.
+  """
+  legacyCode: String @deprecated(reason: "Use 'code' instead")
+
+  """
+  The code of the outlet. For lounges this is the lounge code.
+  """
+  code: String
+
+  """
+  The email address for reservations
+  """
+  reservationEmail: String
+
+  """
+  The Salesforce ID of the outlet
+  """
+  salesforceID: String!
+
+  """
+  The status of the outlet whether it is active or not
+  """
+  status: OutletStatus!
+
+  """
+  The tier of the outlet for example Gold or Black
+  """
+  tier: Tier
+
+  """
+  Types of passengers that can access the outlet
+  """
+  passengerTypes: [PassengerType]
+
+  """
+  This is used for tagging purposes only, to identify specific outlets that can be used by a client.
+  """
+  client: Client
+
+  """
+  Display information about the outlet
+  """
+  display: Display
+
+  """
+  List of the outlet's facilities
+  """
+  facilities: [DraftCatalogueFacility]
+
+  """
+  List of legacy facilities from PPBO
+  """
+  legacyFacilities: [CatalogueLegacyFacility]
+
+  """
+  The location of the outlet
+  """
+  location: Location!
+
+  """
+  The location details of the outlet
+  """
+  locationDetails: OutletLocationDetails
+
+  """
+  Outlet images
+  """
+  media: CatalogueMedia
+
+  """
+  Metadata about editor and last edited
+  """
+  meta: CatalogueMeta
+
+  """
+  A list of products available at the outlet
+  """
+  products: [Product]!
+
+  """
+  Metadata about the outlet sections
+  """
+  sectionsMeta: SectionsMeta
+
+  """
+  The sections that have been edited during an update
+  """
+  editedSections: [String]
+
+  """
+  Version number of the draft
+  """
+  version: Int!
+
+  """
+  Status of the outlet version, always DRAFT for OutletDraftVersion
+  """
+  versionStatus: OutletVersionStatus!
+
+  """
+  Current stage of outlet, can be PUBLISHED, DRAFT OR INCOMPLETE
+  """
+  workflowStage: OutletWorkflowStage
+}
+
+enum OutletVersionStatus {
+  DRAFT
+  PUBLISHED
+}
+
+input AssetInput {
+  """
+  The asset ID
+  """
+  id: String
+
+  """
+  The content type of the asset
+  """
+  contentType: String
+
+  """
+  The description of the asset
+  """
+  description: String
+
+  """
+  The file name of the asset
+  """
+  fileName: String
+
+  """
+  The height of the asset
+  """
+  height: Int
+
+  """
+  The title of the asset
+  """
+  title: String
+
+  """
+  The URL of the asset
+  """
+  url: String
+
+  """
+  The width of the asset
+  """
+  width: Int
+}
+
+input AssetMetadataInput {
+  """
+  The editor of the object
+  """
+  editor: EditorInput
+
+  """
+  The date the object was last edited
+  """
+  lastEdited: String
+}
+
+type Display {
+  additionalConditions: [String]
+  additionalLocationDetails: [String]
+  conditions: [String]
+  facilities: [String]
+  locationDetails: [String]
+  importantInformation: [String]
+}
+
+type NavigationDirections {
+  takeStairs: Boolean!
+  takeLift: Boolean!
+  takeEscalator: Boolean!
+  takeBus: Boolean!
+  takeShuttle: Boolean!
+  takeTrain: Boolean!
+}
+
+type AreaIdentifier {
+  letterOrNumber: String
+  name: String
+}
+
+type NavigableArea {
+  letterOrNumber: String
+  name: String
+  directions: NavigationDirections
+}
+
+type OutletLocationDetails {
+  outletZone: String
+  passportControl: String
+  gateNumber: String
+  gateNumberTwo: String
+  gateLocationDirection: String
+  concourse: NavigableArea
+  floor: NavigableArea
+  level: NavigableArea
+  pier: AreaIdentifier
+  satellite: AreaIdentifier
+  zone: AreaIdentifier
+  module: AreaIdentifier
+  dutyFreeDirection: String
+  foodCourtDirection: String
+  foodCourtName: String
+  hasSignName: Boolean
+  signName: String
+}
+
+input NavigationDirectionsInput {
+  takeStairs: Boolean!
+  takeLift: Boolean!
+  takeEscalator: Boolean!
+  takeBus: Boolean!
+  takeShuttle: Boolean!
+  takeTrain: Boolean!
+}
+
+input AreaIdentifierInput {
+  letterOrNumber: String
+  name: String
+}
+
+input NavigableAreaInput {
+  letterOrNumber: String
+  name: String
+  directions: NavigationDirectionsInput
+}
+
+input OutletLocationDetailsInput {
+  outletZone: String
+  passportControl: String
+  gateNumber: String
+  gateNumberTwo: String
+  gateLocationDirection: String
+  concourse: NavigableAreaInput
+  floor: NavigableAreaInput
+  level: NavigableAreaInput
+  pier: AreaIdentifierInput
+  satellite: AreaIdentifierInput
+  zone: AreaIdentifierInput
+  module: AreaIdentifierInput
+  dutyFreeDirection: String
+  foodCourtDirection: String
+  foodCourtName: String
+  hasSignName: Boolean
+  signName: String
+}
+
+enum OutletWorkflowStage {
+  DRAFT
+  INCOMPLETE
+  PUBLISHED
+}
+
+type OutletSet {
+  id: ID!
+  dataSource: OutletSetDataSourceTypes
+  outletSetID: BigInt
+  codes: [String]
+}
+
+input OutletSetInput {
+  dataSource: OutletSetDataSourceTypes
+  outletSetID: BigInt
+  codes: [String]
+}
+
+enum OutletSetDataSourceTypes {
+  inventorySet
+  loungeSet
+}
+
+type PaginatedOutletSets {
+  items: [OutletSet]
+  pageInfo: PageInfo
+  totalItemCount: Int
+}
+
+type PaginatedPartnerBrands {
+  """
+  The list of partner brands in the current page
+  """
+  items: [PartnerBrand]
+
+  """
+  The pagination information
+  """
+  pageInfo: PageInfo
+
+  """
+  The total number of partner brands
+  """
+  totalItemCount: Int
+}
+
+type PartnerBrand {
+  id: ID!
+  outlets: [Outlet]!
+  products: [Product]
+
+  """
+  The name of the partner brand
+  """
+  name: String!
+
+  """
+  The salesforce ID of the partner brand
+  """
+  salesforceID: String!
+
+  """
+  The status of the partner brand
+  """
+  status: PartnerBrandStatus!
+
+  """
+  Partner integration data for the product brand
+  """
+  partnerIntegrationData: PartnerBrandPartnerIntegrationData
+}
+
+input PartnerBrandFilters {
+  status: [PartnerBrandStatus]
+}
+
+input PartnerBrandInput {
+  """
+  The name of the partner brand
+  """
+  name: String!
+
+  """
+  The salesforce ID of the partner brand
+  """
+  salesforceID: String!
+
+  """
+  The status of the partner brand
+  """
+  status: PartnerBrandStatus!
+
+  """
+  Partner integration data for the partner brand
+  """
+  partnerIntegrationData: PartnerBrandPartnerIntegrationDataInput
+}
+
+input PartnerBrandKey {
+  id: ID!
+}
+
+type PartnerBrands {
+  items: [PartnerBrand]
+  totalItemCount: Int
+}
+
+type PartnerBrandPartnerIntegrationData {
+  """
+  The partner integration ID that is used for the call to SnapLogic
+  """
+  partnerIntegrationID: String
+}
+
+input PartnerBrandPartnerIntegrationDataInput {
+  """
+  The partner integration ID that is used for the call to SnapLogic
+  """
+  partnerIntegrationID: String
+}
+
+enum PartnerBrandStatus {
+  ONBOARDING
+  RELATIONSHIP_LIVE
+  RELATIONSHIP_ENDED
+  LIVE @deprecated(reason: "Value has been removed from PSF")
+  OLD @deprecated(reason: "Value has been removed from PSF")
+}
+
+type AffiliateProduct {
+  id: ID!
+
+  """
+  The product name
+  """
+  name: String!
+
+  """
+  Urls for Affiliate Products
+  """
+  urls: [AffiliateUrls]!
+
+  """
+  The product image from Contentful
+  """
+  image: AffiliateProductImage
+
+  """
+  The product description from Contentful
+  """
+  description: String
+}
+
+type AffiliateProductImage {
+  url: String
+}
+
+input AffiliateProductInput {
+  name: String!
+  urls: [AffiliateUrlsInput]!
+  type: CatalogueProductType!
+}
+
+"""
+Affiliate Product Programmes
+"""
+enum AffiliateProgramme {
+  LOUNGE_KEY
+  LOUNGE_PASS
+  MCAE
+  PRIORITY_PASS
+}
+
+input AffiliateUrlsInput {
+  url: String!
+  programme: Programme!
+}
+
+type AffiliateUrls {
+  url: String!
+  programme: AffiliateProgramme!
+}
+
+type AncillaryProduct {
+  id: ID!
+
+  """
+  The product name
+  """
+  name: String!
+
+  """
+  The outlet associated with the product
+  """
+  outlet: Outlet
+
+  """
+  The Stripe ID of the product
+  """
+  ppStripeID: String
+
+  """
+  The relevant Salesforce ID of the product
+  """
+  salesforceID: String!
+
+  """
+  The product tier for example Gold or Black
+  """
+  tier: String
+
+  """
+  A list of costs for the product by programme
+  """
+  costs: [ProductCost]!
+
+  """
+  A list of sale prices for the product by programme (reference only)
+  """
+  salePrices: [ProductSalePrice]!
+
+  """
+  The status of the product
+  """
+  status: ProductStatus!
+}
+
+input AncillaryProductInput {
+  """
+  The product name generated from the accessType
+  """
+  name: String!
+
+  """
+  The Stripe ID of the product
+  """
+  ppStripeID: String
+
+  """
+  The relevant Salesforce ID of the product
+  """
+  salesforceID: String!
+
+  """
+  The status of the product
+  """
+  status: ProductStatus!
+
+  """
+  The product tier for example Gold or Black
+  """
+  tier: Tier
+
+  """
+  The Outlet ID of the product
+  """
+  outlet: OutletKey!
+
+  """
+  A list of costs for the product by programme
+  """
+  costs: [ProductCostInput]!
+
+  """
+  A list of sale prices for the product by programme (reference only)
+  """
+  salePrices: [ProductSalePriceInput]!
+}
+
+enum BookingFlowType {
+  INTEGRATED
+  NON_INTEGRATED
+  PRE_AGREED
+}
+
+enum CatalogueProductType {
+  PRIMARY
+  ANCILLARY
+  AFFILIATE
+  PACKAGE
+}
+
+enum PrimaryProductAccessType {
+  """
+  The Product can be reserved and the associated fee covers the entire product redemption
+  """
+  RESERVATION
+
+  """
+  The Product can be reserved and a reservation cost applies.
+  When a consumer consumes the Product (e.g. visits the lounge)
+  a 'Walk-up' is also recorded and associated cost will apply at that point in time
+  """
+  RESERVATION_FEE_ONLY
+
+  """
+  The Product can only be consumed by walking up to the location.
+  No reservations are allowed. The associated fee will be charged at the point of consumption
+  """
+  WALK_UP
+}
+
+input PartnerIntegrationDataInput {
+  """
+  Access period for the specific product
+  """
+  accessPeriod: Int
+
+  """
+  Agreed hold time for prebook
+  """
+  agreedPrebookHoldTime: Int
+
+  """
+  Period of time allowed for amendment
+  """
+  amendPeriodAllowed: Int
+
+  """
+  Can be: INTEGRATED, NON_INTEGRATED, PRE_AGREED
+  """
+  bookingFlowType: BookingFlowType
+
+  """
+  Maximum time allowed for booked product
+  """
+  bookingMaxPeriodAllowed: Int
+
+  """
+  Minimum time allowed for booked product
+  """
+  bookingMinPeriodAllowed: Int
+
+  """
+  Period time allowed for cancellation for created booking
+  """
+  cancellationPeriodAllowed: Int
+
+  """
+  Max guests per booking
+  """
+  maxGuests: MaxGuestsTypes
+
+  """
+  Represent the id of the product in partner's API
+  """
+  partnerProductID: String
+
+  """
+  Represents the id of the product in stripe API
+  """
+  stripeProductID: String
+
+  """
+  Period of time slot
+  """
+  timeSlotPeriod: Int
+}
+
+type Product {
+  id: ID!
+
+  """
+  The access type of the product
+  """
+  accessType: PrimaryProductAccessType!
+
+  """
+  The cost zone of the product
+  """
+  costZone: CostZone
+
+  """
+  The product name generated from the accessType
+  """
+  name: String!
+
+  """
+  The product category
+  """
+  category: ProductCategory!
+
+  """
+  The Stripe ID of the product
+  """
+  ppStripeID: String
+
+  """
+  The relevant Salesforce ID of the product
+  """
+  salesforceID: String!
+
+  """
+  The stage of the product based on Saleforce stage
+  """
+  stage: ProductStage!
+
+  """
+  The status of the product
+  """
+  status: ProductStatus!
+
+  """
+  The product tier for example Gold or Black
+  """
+  tier: Tier
+
+  """
+  The product location
+  """
+  location: Location
+
+  """
+  The outlet associated with the product
+  """
+  outlet: Outlet
+
+  """
+  The product code (used by location products as a short term strategic solution only)
+  """
+  code: String
+
+  """
+  A list of costs for the product by programme
+  """
+  costs: [ProductCost]!
+
+  """
+  A list of sale prices for the product by programme (reference only)
+  """
+  salePrices: [ProductSalePrice]!
+
+  """
+  Object containing product tags (tier, accessType, category)
+  """
+  tags: ProductTags
+
+  """
+  The partner integration data
+  """
+  partnerIntegrationData: ProductPartnerIntegrationData
+
+  """
+  The partner brand associated with the product
+  """
+  partnerBrand: PartnerBrand
+
+  """
+  Passport details required
+  """
+  passportDetailsRequired: Boolean
+
+  """
+  Product Reservation Email
+  """
+  reservationEmail: String
+
+  """
+  Product services
+  """
+  services: [String]
+
+  """
+  Product package codes
+  """
+  packageProductCodes: [String]
+  valuationCosts: [ValuationProductCost]!
+
+  """
+  An extension to the Product query to use for fetching valuation of a given product.
+  Valuation takes into account discounts, entitlements used, etc.
+
+  Works with any type of product
+
+  Role required: SERVICE_USER
+  """
+  productValuation(valuationInput: ProductValuationInput): ProductValuation
+  paginatedBookings(
+    endDate: Date
+    page: Int
+    pageSize: Int
+    productId: ID
+    startDate: Date
+    status: BookingStatus
+  ): PaginatedBookings
+}
+
+enum ProductCategory {
+  EAT
+  FAST_TRACK
+  LOUNGE
+  RAIL
+  REFRESH
+  REST
+  UNWIND
+}
+
+type ProductCost {
+  """
+  The cost to the partner when pricing type is flat
+  """
+  cost: Float
+
+  """
+  The currency of the cost eg GBP
+  """
+  costCurrency: String!
+
+  """
+  The tax percentage to be applied to the cost for example 20% VAT in the UK
+  """
+  defaultTaxPercentage: Float!
+
+  """
+  The programme this cost is for
+  """
+  programme: Programme!
+
+  """
+  The cost to the partner when pricing type is variable
+  """
+  projectedCost: Float
+
+  """
+  The cost of a reservation part only
+  """
+  reservationCost: Float!
+
+  """
+  The cost type either flat or tiered
+  """
+  type: ProductCostType!
+}
+
+input ProductCostInput {
+  """
+  The cost to the partner when pricing type is flat
+  """
+  cost: Float
+
+  """
+  The currency of the cost eg GBP
+  """
+  costCurrency: String!
+
+  """
+  The tax percentage to be applied to the cost for example 20% VAT in the UK
+  """
+  defaultTaxPercentage: Float!
+
+  """
+  The programme this cost is for
+  """
+  programme: Programme!
+
+  """
+  The cost to the partner when pricing type is variable
+  """
+  projectedCost: Float
+
+  """
+  The cost of a reservation part only
+  """
+  reservationCost: Float!
+
+  """
+  The cost type either flat or tiered
+  """
+  type: ProductCostType!
+}
+
+enum ProductCostType {
+  FLAT
+  TIERED
+}
+
+input ProductFilters {
+  accessType: [PrimaryProductAccessType]
+  category: [ProductCategory]
+  costZone: [CostZone]
+  tier: [Tier]
+  programme: Programme
+
+  """
+  Use this filter to enable the filtering of only active or inactive products
+  """
+  status: Status
+  location: LocationFilters
+  type: [CatalogueProductType]
+}
+
+input ProductInput {
+  """
+  The access type of the product
+  """
+  accessType: PrimaryProductAccessType!
+
+  """
+  The cost zone of the product
+  """
+  costZone: CostZone
+
+  """
+  The product name generated from the accessType
+  """
+  name: String!
+
+  """
+  The product category
+  """
+  category: ProductCategory!
+
+  """
+  The Stripe ID of the product
+  """
+  ppStripeID: String
+
+  """
+  The relevant Salesforce ID of the product
+  """
+  salesforceID: String!
+
+  """
+  The stage of the product based on Saleforce stage
+  """
+  stage: ProductStage!
+
+  """
+  The status of the product
+  """
+  status: ProductStatus!
+
+  """
+  The product tier for example Gold or Black
+  """
+  tier: Tier
+
+  """
+  The product location
+  """
+  location: LocationInput
+
+  """
+  The Outlet ID of the product (optional)
+  """
+  outlet: OutletKey
+
+  """
+  The product code (used by location products as a short term strategic solution only)
+  """
+  code: String
+
+  """
+  A list of costs for the product by programme
+  """
+  costs: [ProductCostInput]!
+
+  """
+  A list of sale prices for the product by programme (reference only)
+  """
+  salePrices: [ProductSalePriceInput]!
+
+  """
+  Type of the product (PRIMARY or ANCILLARY)
+  """
+  type: CatalogueProductType
+
+  """
+  Partner integration data for prebook products
+  """
+  partnerIntegrationData: PartnerIntegrationDataInput
+}
+
+input ProductKey {
+  id: ID!
+}
+
+type ProductSalePrice {
+  """
+  The programme this sale price is for
+  """
+  programme: Programme!
+
+  """
+  The sale price to the customer
+  """
+  salePrice: Float!
+
+  """
+  The currency of the sale price eg GBP
+  """
+  salePriceCurrency: String!
+
+  """
+  The Stripe ID of the price
+  """
+  stripePriceID: String
+}
+
+input ProductSalePriceInput {
+  """
+  The programme this sale price is for
+  """
+  programme: Programme!
+
+  """
+  The sale price to the customer
+  """
+  salePrice: Float!
+
+  """
+  The currency of the sale price eg GBP
+  """
+  salePriceCurrency: String!
+
+  """
+  The Stripe ID of the price
+  """
+  stripePriceID: String
+}
+
+enum ProductStage {
+  LIVE
+  CLOSED
+  DECLINED
+  DRAFT
+  ONBOARDING
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  STOP_SALE
+  LIVE @deprecated(reason: "Value has been removed from PSF")
+  OPEN @deprecated(reason: "Value has been removed from PSF")
+}
+
+type ProductTags {
+  accessType: PrimaryProductAccessType
+  category: ProductCategory
+  costZone: CostZone
+  country: String
+  tier: Tier
+  locationType: LocationType
+  outletTier: Tier
+  isoCountryCode: ISOCountryCode
+  region: OutletRegion
+  passengerTypes: [PassengerType]
+  client: Client
+}
+
+type ProductTagsList {
+  accessType: [PrimaryProductAccessType]
+  category: [ProductCategory]
+  country: [String]
+  tier: [Tier]
+  locationType: [LocationType]
+  outletTier: [Tier]
+  isoCountryCode: [ISOCountryCode]
+  region: [OutletRegion]
+  passengerTypes: [PassengerType]
+  costZone: [CostZone]
+
+  """
+  This is a field set against the outlet, but retrievable via the product tags.
+  The client field is used to identify a specific outlet that is not retrievable
+  by the other available tags within the product catalogue.
+  """
+  client: [Client]
+}
+
+type PackageProduct {
+  """
+  The cost zone of the outlet
+  """
+  costZone: CostZone
+  id: ID!
+
+  """
+  The booking flow type of the product
+  """
+  bookingFlowType: BookingFlowType
+
+  """
+  The product name
+  """
+  name: String!
+
+  """
+  The relevant Salesforce ID of the product
+  """
+  salesforceID: String!
+
+  """
+  The status of the product
+  """
+  status: ProductStatus!
+
+  """
+  The outlet associated with the product
+  """
+  outlet: Outlet
+
+  """
+  The product services
+  """
+  services: [String]
+
+  """
+  The product type
+  """
+  type: CatalogueProductType
+
+  """
+  The product location
+  """
+  location: Location
+
+  """
+  Package Costs
+  """
+  packageCosts: PackageCosts
+
+  """
+  Product codes
+  """
+  packageProductCodes: [String]
+
+  """
+  Passport details required
+  """
+  passportDetailsRequired: Boolean
+
+  """
+  Reservation Email
+  """
+  reservationEmail: String
+}
+
+input PackageFilters {
+  costZone: [CostZone]
+  location: LocationFilters
+}
+
+type PackageCosts {
+  """
+  The cost for 1 Adult
+  """
+  adultCost: Float
+
+  """
+  The cost for 1 Child
+  """
+  childCost: Float
+
+  """
+  The currency that the cost is in
+  """
+  costCurrency: String
+
+  """
+  Default Tax percentage
+  """
+  defaultTaxPercentage: Float
+
+  """
+  The cost for 1 Infant
+  """
+  infantCost: Float
+}
+
+input LocationFilters {
+  code: [String]
+  journeyLeg: [String]
+  terminal: [String]
+  city: [String]
+  country: [String]
+}
+
+type ProductPartnerIntegrationMaxGuestsType {
+  """
+  Indicates if the group type is chargeable or not
+  """
+  isChargeable: Boolean
+
+  """
+  The maximum number of guests allowed
+  """
+  value: Int!
+
+  """
+  The impact towards total party size
+  """
+  isPartySizeImpacted: Boolean!
+}
+
+type ProductPartnerIntegrationMaxGuests {
+  """
+  The maximum number of adult guests allowed
+  """
+  adult: ProductPartnerIntegrationMaxGuestsType!
+
+  """
+  The maximum number of children guests allowed
+  """
+  children: ProductPartnerIntegrationMaxGuestsType!
+
+  """
+  The maximum number of infant guests allowed
+  """
+  infant: ProductPartnerIntegrationMaxGuestsType!
+
+  """
+  The maximum number of senior guests allowed
+  """
+  senior: ProductPartnerIntegrationMaxGuestsType!
+
+  """
+  The total number of guests allowed
+  """
+  partySize: Int!
+}
+
+type ProductPartnerIntegrationData {
+  """
+  Number of hours notice before the actual visit that a prebook has to give in order to protect the normal walk-up trades of lounges
+  """
+  bookingMinPeriodAllowed: Int
+
+  """
+  Maximum number of days in advance a user can book a product
+  """
+  bookingMaxPeriodAllowed: Int
+
+  """
+  The booking flow type of the product
+  """
+  bookingFlowType: BookingFlowType
+
+  """
+  The time period allowed for amending the booking
+  """
+  amendPeriodAllowed: Int
+
+  """
+  The time period allowed for cancelling the booking
+  """
+  cancellationPeriodAllowed: Int
+
+  """
+  The maximum number of guests allowed
+  """
+  maxGuests: ProductPartnerIntegrationMaxGuests
+
+  """
+  The partner ID of the product
+  """
+  partnerProductID: String
+
+  """
+  The time period for the time slot
+  """
+  timeSlotPeriod: Int
+
+  """
+  The Stripe Product ID
+  """
+  stripeProductID: String
+
+  """
+  The time period in minutes that the lounge should hold the booking before they can release the places to walk-ups
+  """
+  agreedPrebookHoldTime: Int
+
+  """
+  The time period in hours before the flight that the user is allowed to use the product.
+  """
+  accessPeriod: Int
+
+  """
+  The integration ID of the partner brand
+  """
+  partnerIntegrationID: String
+}
+
+input MaxGuestsTypes {
+  """
+  Max guests value types for adults
+  """
+  adult: MaxGuestsValueTypes!
+
+  """
+  Max guests value types for children
+  """
+  children: MaxGuestsValueTypes!
+
+  """
+  Max guests value types for infant
+  """
+  infant: MaxGuestsValueTypes!
+
+  """
+  The total party size value
+  """
+  partySize: Int!
+
+  """
+  Max guests value types for senior
+  """
+  senior: MaxGuestsValueTypes!
+}
+
+input MaxGuestsValueTypes {
+  """
+  Indicates if the group type is chargeable or not
+  """
+  isChargeable: Boolean
+
+  """
+  Indicates if the party size impacts
+  """
+  isPartySizeImpacted: Boolean!
+
+  """
+  Maximum number of guests allowed
+  """
+  value: Int!
+}
+
+type AvailableSlot {
+  capacityLeft: Int
+  endTime: Date
+  interval: Int
+  slotConfigurationId: String
+  startTime: Date
+}
+
+type Id {
+  id: String
+}
+
+type Ids {
+  ids: [Id]
+}
+
+"""
+Slot's state after booking
+"""
+enum SlotState {
+  CANCELLED
+  CONFIRMED
+  HOLDING
+}
+
+"""
+Metadata regarding a booked slot
+"""
+type Slot {
+  id: ID!
+
+  """
+  The booked slot's current state
+  """
+  status: SlotState
+
+  """
+  The time for which the slot is booked. In HH:MM(AM|PM) UTF format (example: 03:00PM)
+  """
+  bookedTime: String
+}
+
+input BookSlotsInput {
+  bookedTime: Date!
+  partySize: Int!
+  slotConfigurationId: String!
+}
+
+"""
+Time range specifying from which hour to which hour is the provided slot configuration
+"""
+type TimeRange {
+  """
+  Start of the Time Range. In RFC 3339 date-time UTF format (YYYY-MM-DDTHH:mm:ssZ)
+  """
+  start: Date
+
+  """
+  End of the Time Range. In RFC 3339 date-time UTF format (YYYY-MM-DDTHH:mm:ssZ)
+  """
+  end: Date
+}
+
+input TimeRangeInput {
+  start: Date!
+  end: Date!
+}
+
+type SlotConfigurations {
+  configs: [SlotConfiguration]
+}
+
+"""
+Slot Configuration from Pre-Agreed
+Slot Configurations are for booking slots for non-API partners to be able to use their services
+"""
+type SlotConfiguration {
+  id: ID!
+
+  """
+  The booking capacity per interval (example, seats in an airplane)
+  """
+  bookingCapacity: Int
+
+  """
+  The booking interval in minutes
+  """
+  bookingInterval: Int
+
+  """
+  Product's ObjectId
+  """
+  productId: ID
+
+  """
+  Time range for which the configuration is provided
+  """
+  timeRange: TimeRange!
+
+  """
+  Booked slots for the configurations. Keeps ONLY booked
+  """
+  slots: [Slot]
+}
+
+input SlotConfigurationInput {
+  bookingCapacity: Int!
+  bookingInterval: Int!
+  productId: ID!
+  timeRange: TimeRangeInput!
+}
+
+input UpdateSlotStatesInput {
+  newState: SlotState!
+  slotIds: [String]!
+}
+
+type PageInfo {
+  currentPage: Int
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  totalPages: Int
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  STOP_SALE
+}
+
+enum Tier {
+  GOLD
+  BLACK
+  LOW_COST
+  PRIVATE
+}
+
+type CatalogueMeta {
+  """
+  The editor who last edited the object
+  """
+  editor: Editor
+
+  """
+  The date the object was last edited
+  """
+  lastEdited: Date
+
+  """
+  Whether it has been edited or not
+  """
+  edited: Boolean
+
+  """
+  Whether it is incomplete or not
+  """
+  isIncomplete: Boolean
+}
+
+type CatalogueTestDataResponse {
+  outlet: Outlet
+  partnerBrand: PartnerBrand
+  product: Product
+}
+
+type CreateTranslationMemoryItemResponse {
+  id: String!
+}
+
+type SearchAccessHours {
+  monday: [SearchTimePeriod]
+  tuesday: [SearchTimePeriod]
+  wednesday: [SearchTimePeriod]
+  thursday: [SearchTimePeriod]
+  friday: [SearchTimePeriod]
+  saturday: [SearchTimePeriod]
+  sunday: [SearchTimePeriod]
+}
+
+type SearchAccessTimes {
+  accessHours: SearchAccessHours
+  description: String
+}
+
+type Experience {
+  id: ID!
+  experience: ExperienceCategory
+  loungeCode: String
+  accessPeriod: String
+  msDynamicsUID: String
+  serviceCentre: String
+  loungeName: String
+  location: LegacyLocation
+  pricing: LegacyPricing
+  ppboOperatorName: String
+  passengerType: String
+  airsideLandside: String
+  underNotice: Boolean
+  exitDateIfUnderNotice: Date
+  reservationRequestEmail: String
+  hasActiveLounges: Boolean
+  isDeleted: Boolean
+  facilities: [String]
+  videos: [String]
+  images: [Image]
+  additionalInformation: String
+  conditions: String
+  directions: String
+  openingHours: String
+  marketingCopy: String
+  uniqueValueKey: String
+  redemption: Redemption
+  loungeOffers: [String]
+  walkUpStripeProductID: String
+  reservationStripeProductID: String
+  reservationOnlyFeeStripeProductID: String
+  partnerIntegrationId: String
+  partnerIdTest: String
+  partnerIdProd: String
+  pP: Boolean
+  lK: Boolean
+  cergea: Boolean
+  bookings: [Booking!]!
+}
+
+enum ExperienceCategory {
+  AIRPORT_EXPERIENCE
+}
+
+enum ExperienceType {
+  LOUNGE
+}
+
+type Image {
+  id: ID!
+  url: String
+  altText: String
+  width: Int
+  height: Int
+  contentType: String
+  lastModified: Date
+}
+
+type Operator {
+  id: ID!
+  name: String
+  experiences: [Experience]
+}
+
+scalar ObjectID
+
+type GeoLoc {
+  lng: Float
+  lat: Float
+}
+
+input GeoQueryInput {
+  lng: Float
+  lat: Float
+}
+
+type GroupBy {
+  attribute: String
+  value: Boolean
+}
+
+input GroupByInput {
+  attribute: String
+  value: Boolean
+}
+
+type LegacyLocation {
+  airportCode: String
+  airportName: String
+  terminal: String
+  city: String
+  country: String
+  region: String
+  lbCountryCode: String
+  isoCountryCode: String
+  terminalAccessibility: String
+  terminalCode: String
+  cgTerminalCode: String
+  cgTerminal: String
+  _geoloc: GeoLoc
+  timezone: String
+}
+
+type LegacyPricing {
+  pricingType: String
+  currency: String
+  reservationCost: Float
+  lifestyleXReservationCharge: Float
+  walkInCostCurrentPPRate: Float
+  lifestyleXWalkInCharge: Float
+  vat: Int
+  reservationOnlyFee: Float
+  reservationOnlyFeeCost: Float
+}
+
+type Redemption {
+  defaultRedemptionTypeCode: String
+  defaultMaxGuests: Int
+  isGuestAllowed: Boolean
+}
+
+scalar StringOrArray
+
+type SearchFilter {
+  attribute: String
+  value: StringOrArray
+}
+
+input SearchFilterInput {
+  attribute: String
+  value: StringOrArray
+  type: String
+}
+
+type AirportSearch {
+  name: String
+  iata: String
+  city: String
+  country: String
+  lat: Float
+  lng: Float
+  geoloc: GeoLoc
+  outletCategories: [OutletCategory]
+  type: String
+  timezone: String
+  isServiceable: Boolean
+  visitsCount: Int @deprecated(reason: "Use visits instead")
+  visits: Int
+  airportTerminals: [AirportTerminal]
+  terminals: [String]
+  locationBoundary: [GeoLoc]
+  concourse: [Concourse]
+  outlets: [AirportOutlet]
+}
+
+input AirportSearchInput {
+  query: String!
+  geoLocation: GeoQueryInput
+  limit: Int = 15
+  locale: String = "en"
+  type: LocationType = AIRPORT
+  searchFilters: [SearchFilterInput]
+}
+
+type SearchCatalogueList {
+  items: [SearchCatalogueItem]
+}
+
+union SearchCatalogueItem = SearchOutlet | SearchLocationProduct
+
+union SearchCatalogueResult =
+  | SearchCatalogueGroupedByTerminal
+  | SearchCatalogueList
+
+type SearchCatalogueGroupedByTerminal {
+  terminals: [TerminalGrouping]
+}
+
+enum SearchProductStatus {
+  ONBOARDING
+  ACTIVE
+  INACTIVE
+  STOP_SALE
+}
+
+type SearchLocationProduct {
+  id: ID!
+
+  """
+  The location of the product
+  """
+  location: SearchLocation!
+
+  """
+  The name of the product
+  """
+  name: String!
+
+  """
+  The object type
+  """
+  objectType: SearchObjectType
+
+  """
+  The status of the product
+  """
+  status: SearchProductStatus
+}
+
+enum SearchObjectType {
+  OUTLET
+  LOCATION_PRODUCT
+}
+
+type SearchOutlet {
+  id: ID!
+
+  """
+  Times during which the outlet is accessible
+  """
+  accessTimes: SearchAccessTimes
+
+  """
+  Category of the outlet
+  """
+  category: SearchOutletCategory!
+    @deprecated(reason: "Use outletCategory instead")
+  outletCategory: OutletCategory!
+
+  """
+  The code of the outlet
+  """
+  code: String
+
+  """
+  Available facilities at the outlet
+  """
+  facilities: [OutletFacility]!
+
+  """
+  Outlet images
+  """
+  images: OutletImages
+
+  """
+  The legacy code of the terminal
+  """
+  legacyCode: String
+
+  """
+  The location of the outlet
+  """
+  location: SearchLocation!
+
+  """
+  The name of the outlet
+  """
+  name: String!
+
+  """
+  Outlet open status based on input date time
+  """
+  openStatus: OutletOpenStatus
+
+  """
+  Indicates if the outlet pre-booking enabled or not
+  """
+  isPrebookEnabled: Boolean
+
+  """
+  The object type
+  """
+  objectType: SearchObjectType
+
+  """
+  Indicates if the outlet is active or not
+  """
+  status: OutletStatus
+
+  """
+  the product programmes available at the outlet
+  """
+  productProgrammes: [Programme]
+}
+
+type SearchOutletList {
+  items: [SearchOutlet]
+}
+
+union SearchOutletResult = OutletsGroupedByTerminal | SearchOutletList
+
+type Terminal {
+  name: String
+  outlets: [SearchOutlet]
+}
+
+type TerminalGrouping {
+  name: String
+  items: [SearchCatalogueItem]
+}
+
+type SearchTimePeriod {
+  startTime: String!
+  endTime: String!
+}
+
+type Translation {
+  id: String!
+  text: String!
+}
+
+type OutletsGroupedByTerminal {
+  terminals: [Terminal]
+}
+
+enum SearchISOCountryCode {
+  ABW
+  AFG
+  AGO
+  AIA
+  ALA
+  ALB
+  AND
+  ANT
+  ARE
+  ARG
+  ARM
+  ASM
+  ATA
+  ATF
+  ATG
+  AUS
+  AUT
+  AZE
+  BDI
+  BEL
+  BEN
+  BES
+  BFA
+  BGD
+  BGR
+  BHR
+  BHS
+  BIH
+  BLM
+  BLR
+  BLZ
+  BMU
+  BOL
+  BRA
+  BRB
+  BRN
+  BTN
+  BVT
+  BWA
+  CAF
+  CAN
+  CCK
+  CHE
+  CHL
+  CHN
+  CIV
+  CMR
+  COD
+  COG
+  COK
+  COL
+  COM
+  CPV
+  CRI
+  CUB
+  CUW
+  CXR
+  CYM
+  CYP
+  CZE
+  DEU
+  DJI
+  DMA
+  DNK
+  DOM
+  DZA
+  ECU
+  EGY
+  ERI
+  ESH
+  ESP
+  EST
+  ETH
+  FIN
+  FJI
+  FLK
+  FRA
+  FRO
+  FSM
+  GAB
+  GBR
+  GEO
+  GGY
+  GHA
+  GIB
+  GIN
+  GLP
+  GMB
+  GNB
+  GNQ
+  GRC
+  GRD
+  GRL
+  GTM
+  GUF
+  GUM
+  GUY
+  HKG
+  HMD
+  HND
+  HRV
+  HTI
+  HUN
+  IDN
+  IMN
+  IND
+  IOT
+  IRL
+  IRN
+  IRQ
+  ISL
+  ISR
+  ITA
+  JAM
+  JEY
+  JOR
+  JPN
+  KAZ
+  KEN
+  KGZ
+  KHM
+  KIR
+  KNA
+  KOR
+  KWT
+  LAO
+  LBN
+  LBR
+  LBY
+  LCA
+  LIE
+  LKA
+  LSO
+  LTU
+  LUX
+  LVA
+  MAC
+  MAF
+  MAR
+  MCO
+  MDA
+  MDG
+  MDV
+  MEX
+  MHL
+  MKD
+  MLI
+  MLT
+  MMR
+  MNE
+  MNG
+  MNP
+  MOZ
+  MRT
+  MSR
+  MTQ
+  MUS
+  MWI
+  MYS
+  MYT
+  NAM
+  NCL
+  NER
+  NFK
+  NGA
+  NIC
+  NIU
+  NLD
+  NOR
+  NPL
+  NRU
+  NZL
+  OMN
+  PAK
+  PAN
+  PCN
+  PER
+  PHL
+  PLW
+  PNG
+  POL
+  PRI
+  PRK
+  PRT
+  PRY
+  PSE
+  PYF
+  QAT
+  REU
+  ROU
+  RUS
+  RWA
+  SAU
+  SDN
+  SEN
+  SGP
+  SGS
+  SHN
+  SJM
+  SLE
+  SLB
+  SLV
+  SMR
+  SOM
+  SPM
+  SRB
+  SSD
+  STP
+  SUR
+  SVK
+  SVN
+  SWE
+  SWZ
+  SXM
+  SYC
+  SYR
+  TCA
+  TCD
+  TGO
+  THA
+  TJK
+  TKL
+  TKM
+  TLS
+  TON
+  TTO
+  TUN
+  TUR
+  TUV
+  TWN
+  TZA
+  UGA
+  UKR
+  UMI
+  URY
+  USA
+  UZB
+  VAT
+  VCT
+  VEN
+  VGB
+  VIR
+  VNM
+  VUT
+  WLF
+  WSM
+  YEM
+  ZAF
+  ZMB
+  ZWE
+}
+
+type SearchLocation {
+  """
+  The country name
+  """
+  country: String!
+
+  """
+  The ISO country code
+  """
+  isoCountryCode: SearchISOCountryCode
+
+  """
+  The city
+  """
+  city: String
+
+  """
+  The 3 character location code eg RMF
+  """
+  code: String
+
+  """
+  Whether the location is airside or landside
+  """
+  landside: Boolean
+
+  """
+  The latitude of the location
+  """
+  latitude: Float
+
+  """
+  The longitude of the location
+  """
+  longitude: Float
+
+  """
+  The name of the location
+  """
+  name: String
+
+  """
+  The terminal of the location
+  """
+  terminal: String
+
+  """
+  The type of the location (e.g. AIRPORT)
+  """
+  type: SearchLocationType
+}
+
+enum SearchLocationType {
+  AIRPORT
+  FERRY_STATION
+  RAILWAY_STATION
+}
+
+enum SearchOutletCategory {
+  EAT @deprecated(reason: "Use OutletCategory instead")
+  FAST_TRACK @deprecated(reason: "Use OutletCategory instead")
+  LOUNGE @deprecated(reason: "Use OutletCategory instead")
+  REFRESH @deprecated(reason: "Use OutletCategory instead")
+  REST @deprecated(reason: "Use OutletCategory instead")
+  UNWIND @deprecated(reason: "Use OutletCategory instead")
+  RAIL @deprecated(reason: "Use OutletCategory instead")
+  RETAIL @deprecated(reason: "Use OutletCategory instead")
+}
+
+type OutletConditions {
+  accessPrior: String
+  childPolicy: String
+  dressCode: String
+  legacyConditions: String
+  maxStay: Int
+  smokingPolicy: String
+}
+
+type OutletFacility {
+  """
+  ID of the outlet (e.g. wifi, airConditioning, etc.)
+  """
+  id: String!
+
+  """
+  Whether the facility is available or not
+  """
+  isAvailable: Boolean!
+
+  """
+  Name of the facility
+  """
+  name: String!
+}
+
+type OutletImage {
+  contentType: String
+  description: String
+  fileName: String
+  height: Int
+  title: String
+  url: String
+  width: Int
+}
+
+type OutletImages {
+  mainImage: OutletImage
+}
+
+enum SearchOutletRegion {
+  APAC
+  AMERICAS
+  EMEA
+  GLOBAL
+}
+
+type FilterCategories {
+  category: String
+  filters: [FilterList]!
+}
+
+type FilterList {
+  attribute: String
+  id: String!
+  name: String!
+  value: String
+}
+
+input LocationSearchInput {
+  query: String!
+  geoLocation: GeoQueryInput
+  limit: Int = 5
+  locale: String = "en"
+  type: LocationType = AIRPORT
+  id: String
+  code: String
+}
+
+input SortByInput {
+  field: String!
+  order: SortOrder!
+}
+
+type LocationMeta {
+  id: String
+  code: String
+  name: String
+  type: LocationType
+  city: String
+  country: String
+  geoloc: GeoLoc
+  categories: [SearchOutletCategory]
+    @deprecated(reason: "Use outletCategory instead")
+  outletType: OutletCategory
+  iata: String
+  latitude: Float
+  longitude: Float
+  isServiceable: Boolean
+  terminalsOAG: [String]
+  terminalsPSF: [String]
+  isoCountryCode: String
+  displayName: String
+  cityDisplayName: String
+  visitsCount: Int
+}
+
+input SuggestedAirportInput {
+  countryCode: String
+  geoLocation: GeoQueryInput
+  limit: Int
+  locale: String = "en"
+}
+
+type Concourse {
+  _geoloc: GeoLoc
+  code: String
+  locationBoundary: [GeoLoc]
+  name: String
+}
+
+type AirportOutlet {
+  code: String
+  id: String
+  name: String
+  type: String
+}
+
+type AirportTerminal {
+  _geoloc: GeoLoc
+  code: String
+  locationBoundary: [GeoLoc]
+  name: String
+}
+
+type ValuationProductCost {
+  """
+  The cost to the partner when pricing type is flat
+  """
+  cost: Float
+
+  """
+  The currency of the cost eg GBP
+  """
+  costCurrency: String!
+
+  """
+  The tax percentage to be applied to the cost for example 20% VAT in the UK
+  """
+  defaultTaxPercentage: Float!
+
+  """
+  The programme this cost is for
+  """
+  programme: Programme!
+
+  """
+  The cost to the partner when pricing type is variable
+  """
+  projectedCost: Float
+
+  """
+  The cost of a reservation part only
+  """
+  reservationCost: Float!
+
+  """
+  The cost type either flat or tiered
+  """
+  type: ProductCostType!
+}
+
+"""
+Input object for product valuation
+"""
+input ProductValuationInput {
+  """
+  Used if User Type is not Consumer to identify the consumer
+  REQUIRED when user type is SERVICE_USER or SUPER USER,
+  otherwise retrieved from context.
+  """
+  consumerID: ID
+  productID: ID!
+
+  """
+  Used for fetching entitlements
+
+  REQUIRED when entitlements are needed, otherwise it returns NULL
+  """
+  membershipID: ID
+
+  """
+  Used by catalogue api to determine product to return in the getProduct query.
+  """
+  productIDType: ProductIDType
+  programme: Programme
+
+  """
+  Start date for entitlements fetching
+  """
+  startDate: Date
+
+  """
+  End date for entitlements fetching
+  """
+  endDate: Date
+}
+
+"""
+A valuation information regarding a product of any type
+"""
+type ProductValuation {
+  """
+  Membership ID for the entitlements
+  """
+  membershipID: String
+  consumerID: String
+
+  """
+  The cost which the end user pays to Collinson
+  """
+  priceDetails: PriceDetails
+
+  """
+  The cost of the service offered to Collinson itself from the partners
+  """
+  costDetails: CostDetails
+
+  """
+  Requires membershipID to be passed
+  """
+  programme: Programme
+
+  """
+  List of entitlements for the product
+  """
+  entitlements: [Entitlement]
+
+  """
+  List of deal entitlements for the product
+  """
+  dealEntitlements: [DealEntitlement]
+}
+
+"""
+The cost which the client pays to Collinson
+"""
+type ClientPricing {
+  """
+  Lounge code in which pricing is provided
+  """
+  loungeCode: String
+
+  """
+  The currency of the price in 3 chars. Example: USD
+  """
+  currency: String
+
+  """
+  Price for member
+  """
+  memberPrice: String
+
+  """
+  Price for guests
+  """
+  guestPrices: [String]
+}
+
+"""
+Input for client pricing object
+"""
+input ClientPricingInput {
+  """
+  Deal id is under which prices are calculated
+  """
+  dealID: String!
+
+  """
+  Product ids for which member price and guest prices are calculated
+  """
+  productIDs: [String!]!
+}
+
+"""
+The cost which the end user pays to Collinson
+
+Falls back to fetching it from Catalogue-API, if the price does not exist in the Decision Table
+"""
+type PriceDetails {
+  """
+  Final price, after adjustments for discounts, entitlements, etc
+  """
+  finalPrice: Float
+
+  """
+  The currency of the price in 3 chars. Example: USD
+  """
+  currency: String
+}
+
+"""
+How much it costs Collinson to use a service from a partner
+"""
+type CostDetails {
+  """
+  The price with a scale of 2. Example: 5.00
+  """
+  price: Float
+
+  """
+  The currency of the price in 3 chars. Example: USD
+  """
+  currency: String
+}
+
+input ConsumerInput {
+  """
+  Current app which user is using to log into the system
+  """
+  brand: LinkedAccountProvider
+  enableEmailAlerts: Boolean
+  emailMarketingConsent: Boolean
+  partnerMarketingConsent: Boolean
+  phoneMarketingConsent: Boolean
+  enableSmsAlerts: Boolean
+  consumerID: String
+  phoneCountryCode: String
+  emailAddress: String
+  firstName: String
+  lastName: String
+  locale: String
+  phone: String
+  dateOfBirth: Date
+
+  """
+  in a future email and phone marketing consent will replace this field
+  """
+  marketingConsent: Boolean
+  countryOfResidence: String
+  isEmailVerified: Boolean
+  isPhoneVerified: Boolean
+
+  """
+  This will help us identify if a user is migrated from old world (PPBO) or is newly created
+  """
+  isUserMigratedFromOldWorld: Boolean = false
+  emailVerifiedAt: Date
+  phoneVerifiedAt: Date
+  primaryAuthenticator: String
+  pushConsent: Boolean
+  inAppNotificationConsent: Boolean
+  sourceSystem: String = "npd"
+  crmId: String
+}
+
+input EnrolmentInput {
+  membershipNumber: String
+  membershipPlanID: String
+}
+
+enum LinkedAccountProvider {
+  PRIORITY_PASS
+  LOUNGE_KEY
+  PRIORITY_PASS_PRIVATE
+    @deprecated(
+      reason: "No need to use in linked accounts, only for consumer -> brand"
+    )
+}
+
+input LinkedAccountInput {
+  token: String!
+  analytics: JSONObject
+}
+
+input UpdateLinkedAccountInput {
+  externalID: String
+  provider: LinkedAccountProvider
+  membershipID: String
+  membershipType: String
+  sourceCode: String
+  analytics: JSONObject
+  dmc: LinkedAccountDMCInput
+  entitlements: LinkedAccountEntitlementsInput
+}
+
+input LinkedAccountDMCInput {
+  ConsumerType: String
+  DmcActivationStatus: String
+  IsDMCAvailable: Boolean
+  IsMembershipDueToExpire: Boolean
+  MemberFullName: String
+  MembershipCreation: String
+  MembershipExpiry: String
+  MembershipNumber: String
+  MembershipStart: String
+  SourceCode: String
+}
+
+input LinkedAccountEntitlementsInput {
+  Guest: GuestEntitlementInput
+  Member: MemberEntitlementInput
+}
+
+input GuestEntitlementInput {
+  Entitlement: String
+  Pending: String
+  Remaining: String
+  Used: String
+}
+
+input MemberEntitlementInput {
+  Entitlement: String
+  Pending: String
+  Remaining: String
+  Used: String
+}
+
+"""
+A linked account is another account (typically external) that can be associated to the internal cergea consumer
+"""
+type LinkedAccount {
+  id: ID!
+  externalID: String!
+  consumer: Consumer!
+  provider: LinkedAccountProvider!
+  membershipID: String
+  membershipType: String!
+
+  """
+  Membership associated with the linked account
+  """
+  memberships: [Membership]
+  sourceCode: String
+  analytics: JSONObject
+  dmc: LinkedAccountDMC
+  entitlements: LinkedAccountEntitlements
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type MembershipRange {
+  isActive: Boolean!
+  max: Float!
+  min: Float!
+}
+
+input MembershipRangeInput {
+  isActive: Boolean!
+  max: Float!
+  min: Float!
+}
+
+"""
+A membership plan is a deal that has been mastered in SalesForce
+"""
+type MembershipPlan {
+  id: ID!
+  ica: String
+  issuer: String
+  planName: String
+  programme: String
+  externalID: String!
+  createdAt: Date!
+  updatedAt: Date!
+  status: MembershipPlanStatus!
+  startDate: Date!
+  endDate: Date!
+  masterPrefixID: String
+  membershipNoLength: Int!
+  membershipPrefix: String!
+  membershipRange: [MembershipRange]!
+  authorisationDetails: MembershipAuthorisationDetails
+  sourceCode: String
+  shouldProcessWalkupInPPBO: Boolean
+  logoUrl: String
+  allowSupplementaryMembers: Boolean
+  maxSupplementariesPerPrimary: Int
+}
+
+input MembershipPlanInput {
+  endDate: Date!
+  externalID: String!
+  ica: String
+  issuer: String
+  membershipPrefix: String!
+  membershipRange: [MembershipRangeInput]!
+  planName: String
+  programme: String
+  startDate: Date!
+  sourceCode: String
+  status: MembershipPlanStatus!
+  shouldProcessWalkupInPPBO: Boolean!
+  authorisationDetails: MembershipAuthorisationDetailsInput
+  membershipNoLength: Int!
+  allowSupplementaryMembers: Boolean
+  maxSupplementariesPerPrimary: Int
+}
+
+input CreateMobileAppDataInput {
+  pushNotificationId: String
+  os: String!
+  osVersion: String
+  deviceMaker: String
+  deviceModel: String
+  deviceID: String
+  appVersion: String!
+  appName: String!
+
+  """
+  find existing mobileAppData by appID, if not present should generate new one, is optional for request
+  """
+  appID: String
+}
+
+input UpdateMobileAppDataInput {
+  appID: String!
+  pushNotificationId: String
+  os: String
+  osVersion: String
+  deviceMaker: String
+  deviceModel: String
+  deviceID: String
+  appVersion: String
+  appName: String
+}
+
+"""
+Mobile app data stores data about an instance of mobile app used by consumer. A consumer can have multiple app instances.
+"""
+type MobileAppData {
+  id: ID!
+  appId: String! @deprecated(reason: "Use appID instead")
+  appID: String!
+  consumer: Consumer!
+  blockedAt: Date
+  unblockedAt: Date
+  consumeCodeStatus: MobileAppDataStatus
+  pushNotificationId: String
+  os: String!
+  osVersion: String
+  failedActivationAttemptsCount: Int
+  lastFailedActivationAttempt: Date
+  deviceMaker: String
+  deviceID: String
+  deviceModel: String
+  appVersion: String!
+  appName: String!
+  active: Boolean!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+enum MobileAppDataStatus {
+  ACTIVE
+  BLOCKED
+}
+
+"""
+The type of search that has been made.
+"""
+enum SearchType {
+  AIRPORT
+  AIRPORT_DEP_DATETIME
+  FLIGHT
+  FLIGHT_MANUAL
+}
+
+type RecentSearches {
+  id: ID!
+  searchType: SearchType!
+  destinationLocation: LocationConsumer
+  departureDateTime: DateTime
+  departureDateTimeLocal: DateTime
+  consumer: Consumer
+  carrier: Carrier
+  createdAt: Date
+  originLocation: LocationConsumer
+  language: String
+}
+
+input RecentSearchInput {
+  searchType: SearchType!
+  departureDateTime: DateTime
+  language: String
+  originLocation: LocationInput
+  destinationLocation: LocationInput
+  carrier: CarrierInput
+}
+
+scalar DateTime
+
+type DeleteRecentSearchResponse {
+  isDeleted: Boolean!
+  message: String!
+}
+
+input DisableEnableUserSessionInput {
+  appID: String!
+  hasEnabled: Boolean
+  userID: String!
+}
+
+input DisableUserSessionInput {
+  appID: String!
+}
+
+type Favourite {
+  id: ID!
+  category: String! @deprecated(reason: "Use type")
+  type: FavouriteEntityType!
+  favouriteEntity: FavouriteUnion!
+  createdAt: Date!
+  updatedAt: Date!
+  consumer: Consumer!
+}
+
+union FavouriteUnion = Outlet | Airport
+
+type PageDetails {
+  currentPage: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  totalPages: Int!
+}
+
+type PaginatedResponse {
+  items: [Favourite!]!
+  pageInfo: PageDetails!
+  totalItemCount: Int!
+}
+
+input RemoveFavouriteInput {
+  consumerId: String!
+  favouriteEntityId: String!
+}
+
+type AccountDeletionResponse {
+  isStored: Boolean!
+  message: String!
+}
+
+enum ActivationStatus {
+  ACTIVE
+  CANCELLED
+  ERROR
+  REDEEMED
+}
+
+type ActivationCode {
+  id: String
+  activationCode: String
+  status: ActivationStatus
+  consumer: Consumer
+  membershipNumber: String
+  membershipPlanID: String
+  createdAt: Date
+  expiryDate: Date
+  activationDate: Date
+  sourceRequestID: String
+  isSupplementary: Boolean
+  supplementaryCodes: [ActivationCode]
+  parentActivationCode: ActivationCode
+}
+
+input ActivationCodeInput {
+  activationCode: String!
+}
+
+"""
+A summary of the results that have been collected in the generation of activation codes
+"""
+type ActivationCodeSummary {
+  success: Boolean!
+  totalCodesCreated: Int!
+  remainingActiveCodes: Int!
+  cancelledCodes: Int!
+  erroredCodes: Int!
+  supplementaryCodes: Int!
+}
+
+type ActivationCodeEnrolResponse {
+  consumer: Consumer!
+  membershipNum: String!
+  membershipID: String!
+  paymentURL: String
+
+  """
+  'ACTIVE', // the membership has been fully enrolled and is active
+  'INACTIVE', // the membership was fully enrolled but has now been moved to inactive e.g. pending renwal
+  'BLOCKED', // the membership has been blocked for an abuse of terms
+  'PROCESSING', // there are some steps to complete the setup of the membership in progress e.g. setting up entitlements
+  VERIFICATION_REQUIRED', // there is an extra veritication step such as payment card auth that might be needed to complete the enrolment
+  'ERROR' // there has been an error in the enrol process
+  """
+  status: String
+}
+
+input AddFavouriteInput {
+  category: String @deprecated(reason: "Use type")
+  type: FavouriteEntityType!
+  favouriteEntityId: String!
+}
+
+input AddressInput {
+  id: ID
+  type: AddressType!
+  line1: String!
+  line2: String
+  company: String
+  town: String!
+  postcode: String
+  county: String
+  country: String!
+}
+
+enum AddressType {
+  HOME
+  BILLING
+}
+
+"""
+An address belonging to a consumer
+"""
+type Address {
+  id: ID!
+  type: AddressType!
+  consumer: Consumer!
+  line1: String!
+  line2: String
+  company: String
+  town: String!
+  postcode: String
+  county: String
+  country: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type DigitalMembershipDetails {
+  name: String
+  membershipNumber: String
+  planName: String
+  membershipValidity: MembershipValidity
+  barcodeString: String
+}
+
+type MembershipValidity {
+  startDate: Date
+  endDate: Date
+}
+
+input FindOrCreateConsumerForMembershipNumInput {
+  membershipNum: String!
+  emailAddress: String @deprecated
+  firstName: String @deprecated
+  lastName: String @deprecated
+  isSupplementary: Boolean
+  primaryMembershipNumber: String
+}
+
+type FakeDoor {
+  id: ID!
+  fakeDoorType: FakeDoorType!
+  consumerId: String!
+  confirmedInterest: FakeDoorInterest!
+  os: FakeDoorOs!
+  createdAt: Date
+  updatedAt: Date
+}
+
+enum FakeDoorInterest {
+  DO_NOT_KNOW
+  INTERESTED
+  NOT_INTERESTED
+}
+
+enum FakeDoorType {
+  TRIP_FORWARD_EMAIL
+  TRIP_INBOX_SYNC
+}
+
+input FakeDoorInput {
+  confirmedInterest: FakeDoorInterest!
+  fakeDoorType: FakeDoorType!
+  os: FakeDoorOs!
+}
+
+input FakeDoorFilters {
+  fakeDoorType: FakeDoorType
+  confirmedInterest: FakeDoorInterest
+  os: FakeDoorOs
+}
+
+type Carrier {
+  identifier: String
+  name: String
+}
+
+input CarrierInput {
+  identifier: String
+  name: String
+}
+
+input DeleteAddressInput {
+  addressId: ID!
+}
+
+input ExpiryDateInput {
+  expiryMonth: Int
+  expiryYear: Int
+}
+
+input TokenisedCardInput {
+  firstSix: String!
+  lastFour: String!
+  token: String!
+  cardType: String!
+}
+
+"""
+This is a membership card that has been reported as lost, stolen etc
+"""
+type BlockedMembershipCard {
+  id: ID!
+  analytics: JSONObject
+  membershipNumber: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+input BlockedMembershipCardInput {
+  membershipNumber: String!
+  analytics: JSONObject
+}
+
+type TokenexWebFormDetails {
+  jwtToken: String
+  tokenexWebFormUrl: String
+    @deprecated(reason: "Use tokenizerWebFormUrl instead")
+  tokenizerWebFormUrl: String
+}
+
+input MembershipAuthorisationDetailsInput {
+  activity: String
+  countryCode: String
+  currency: String
+  mode: String
+  value: Float
+}
+
+type MembershipAuthorisationDetails {
+  activity: String
+  countryCode: String
+  currency: String
+  mode: String
+  value: Float
+}
+
+"""
+Response from the enrolIntoPaymentCardDeal mutation.
+The mutation only returns one of the fields (based on authorisation details) and other is null
+"""
+type PaymentCardDealEnrolmentResponse {
+  url: String
+  membership: Membership
+  entitlements: [EntitlementsWithCount]
+}
+
+type CardData {
+  lastFourDigits: String!
+  type: String!
+}
+
+type ProfileUpdateResponse {
+  message: String
+  success: Boolean
+  failedCodeInputAttemptCount: Int
+  maximumCodeInputAttempts: Int
+  status: String
+}
+
+type CancellationResponse {
+  """
+  Response to the cancellation request
+  """
+  isDeleted: Boolean
+  message: String
+}
+
+type VerificationResponse {
+  message: String
+  success: Boolean
+  deviceId: String
+  preAuthSessionId: String
+  unblockedAt: String
+  attemptsLeft: Int
+  mobileAppID: String
+}
+
+input OtpInput {
+  """
+  The OTP code entered by the user
+  """
+  userInputCode: String!
+
+  """
+  the deviceId returned as a part of updateProfileData mutation
+  """
+  deviceId: String!
+
+  """
+  The preAuthSessionId returned as a part of updateProfileData mutation
+  """
+  preAuthSessionId: String!
+}
+
+input ProfileDataInput {
+  """
+  User email template language, could be EN, ES, PT es-419 etc.
+  """
+  language: String
+
+  """
+  User email address
+  """
+  emailAddress: String
+
+  """
+  The phone number of the user
+  """
+  phone: String
+
+  """
+  User country code like: +44, +91 etc.
+  """
+  countryCode: String
+
+  """
+  User locale like: ES, IN, UA, UK etc.
+  """
+  locale: String
+
+  """
+  mobile app data to create user mobile app info
+  """
+  appData: CreateMobileAppDataInput
+}
+
+input GetFavouritesInput {
+  membershipId: ID @deprecated
+  page: Int!
+  orderBy: SortOrder
+  pageSize: Int
+}
+
+enum FavouriteEntityType {
+  airport
+  outlet
+}
+
+type Airport {
+  name: String
+  iata: String
+  city: String
+  country: String
+  lat: Float
+  lng: Float
+  type: String
+  timezone: String
+
+  """
+  List of a terminals which we get from search API (contains terminal)
+  """
+  airportTerminals: [TerminalAirport]
+
+  """
+  List of a terminals which we get from search API (contains only terminal names)
+  """
+  terminals: [String]
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  BLOCKED
+  HOLD
+}
+
+input ActivationCodeFilters {
+  status: ActivationStatus
+  supplementary: Boolean
+}
+
+input TrackConsumeCodeFailedInput {
+  appID: String!
+}
+
+input ResetConsumeCodeFailedInput {
+  appID: String!
+  userID: String!
+}
+
+input MasterPrefixInput {
+  masterPrefix: String
+
+  """
+  Determines whether the prefix is for Associate or Non-Associate type deals
+  """
+  prefixType: String
+  hasCheckDigit: Boolean
+  membershipNumberLength: Int
+  sequenceOverride: String
+}
+
+type MasterPrefixResponse {
+  """
+  The unique platform record ID of the generated Master Prefix sequence record.
+  """
+  PMReferenceID: String
+}
+
+type MasterPrefix {
+  id: String
+  masterPrefix: String
+  prefixType: String
+  hasCheckDigit: Boolean
+  membershipNumberLength: Int
+  remainingSeqCount: String
+  sequenceCounter: String
+}
+
+type HashedPANEnrolmentResponse {
+  membershipNum: String!
+  membershipID: String!
+  consumer: Consumer!
+}
+
+enum PANTypes {
+  HASHED
+  TOKENIZED
+  WALLET
+}
+
+type PANDetailsInfo {
+  consumerFirstName: String!
+  consumerLastName: String!
+  expiry: String!
+  firstSixDigits: String!
+  lastFourDigits: String!
+}
+
+type GetAccessDetailsResponse {
+  membership: Membership!
+  consumer: Consumer!
+  panDetails: PANDetailsInfo!
+}
+
+type GenericDeleteResponse {
+  isDeleted: Boolean!
+  message: String!
+}
+
+input GetUserMembershipsInput {
+  membershipNumber: ID
+  orderBy: SortOrder
+  limit: Int
+}
+
+input SupportTicketInput {
+  agreement: Boolean!
+  attachments: SupportTicketAttachments
+  email: String!
+  language: String!
+  lastFourCardDigits: Int!
+  membershipId: ID!
+  message: String!
+  name: String!
+  phoneNumber: String!
+  product: String!
+  reason: String!
+  recaptchaToken: String
+  subject: String!
+}
+
+input SupportTicketAttachments {
+  name: String!
+  type: String!
+  data: String!
+}
+
+type LinkedAccountDMC {
+  ConsumerType: String
+  DmcActivationStatus: String
+  IsDMCAvailable: Boolean
+  IsMembershipDueToExpire: Boolean
+  MemberFullName: String
+  MembershipCreation: String
+  MembershipExpiry: String
+  MembershipNumber: String
+  MembershipStart: String
+  SourceCode: String
+}
+
+type LinkedAccountEntitlements {
+  Guest: GuestEntitlement
+  Member: MemberEntitlement
+}
+
+type GuestEntitlement {
+  Entitlement: String
+  Pending: String
+  Remaining: String
+  Used: String
+}
+
+type MemberEntitlement {
+  Entitlement: String
+  Pending: String
+  Remaining: String
+  Used: String
+}
+
+type UpdateLinkedAccountResponse {
+  id: String
+  analytics: JSONObject
+  dmc: LinkedAccountDMC
+  entitlements: LinkedAccountEntitlements
+}
+
+type LocationConsumer {
+  """
+  The country name
+  """
+  country: String
+
+  """
+  The ISO country code
+  """
+  isoCountryCode: ISOCountryCode
+
+  """
+  The city
+  """
+  city: String
+
+  """
+  The 3 character location code eg RMF
+  """
+  code: String
+
+  """
+  Whether the location is airside or landside
+  """
+  landside: Boolean
+
+  """
+  The latitude of the location
+  """
+  latitude: Float
+
+  """
+  Legacy description of the location
+  """
+  description: String
+
+  """
+  The longitude of the location
+  """
+  longitude: Float
+
+  """
+  The timezone of the location based on its geo coordinates
+  """
+  timezone: String
+
+  """
+  The name of the location
+  """
+  name: String
+
+  """
+  The terminal of the location
+  """
+  terminal: String
+
+  """
+  List of a terminals which we get from search API (contains geolocation, code, name etc.)
+  """
+  airportTerminals: [TerminalAirport]
+
+  """
+  List of a terminals which we get from search API (contains only terminal names)
+  """
+  terminals: [String]
+
+  """
+  The type of the location (e.g. AIRPORT)
+  """
+  type: LocationType
+
+  """
+  Location point of interest id
+  """
+  pointOfInterestID: String
+}
+
+input BookingCreateTripInput {
+  departure: LocationInput!
+  arrival: LocationInput!
+  transportation: TransportationInput!
+  source: TripSource!
+}
+
+"""
+The lifecycle statuses of a booking
+"""
+enum BookingStatus {
+  """
+  Authenticated: true
+  Role(s): CONSUMER, ADMIN, SUPER_USER
+  Description: An upcoming visit has been updated once already paid
+  """
+  AMENDED
+
+  """
+  Authenticated: true
+  Role(s): CONSUMER, ADMIN, SUPER_USER
+  Description: An upcoming visit has been cancelled once already paid
+  """
+  CANCELLED
+
+  """
+  Authenticated: true
+  Role(s): PARTNER, ADMIN, SUPER_USER
+  Description: A partner operator has successfully confirmed the entry of a consumer
+  """
+  CHECKED_IN
+
+  """
+  Authenticated: true
+  Role(s): ADMIN, SUPER_USER
+  Description: Successful visits are moved to this status the day after they have been checked in
+  """
+  COMPLETED_VISIT
+    @deprecated(reason: "Outdated and believed to no longer be required")
+
+  """
+  Authenticated: true
+  Role(s): PARTNER, ADMIN, SUPER_USER
+  Description: Once a successful payment has been completed, the partner has confirmed they are happy to accept the visit
+  """
+  CONFIRMED
+
+  """
+  Authenticated: true
+  Role(s): PARTNER, ADMIN, SUPER_USER
+  Description: Once a successful payment has been completed, the partner declines the visit
+  """
+  DECLINED
+
+  """
+  Authenticated: true
+  Role(s): ADMIN, SUPER_USER
+  Description: An error has happened during the booking & visit process
+  """
+  ERRORED
+
+  """
+  Authenticated: true
+  Role(s): CONSUMER, ADMIN, SUPER_USER
+  Description: A booking has been initialy logged, it is pending payment and confirmation from the partner
+  """
+  INITIALIZED
+
+  """
+  Authenticated: true
+  Role(s): PARTNER, ADMIN, SUPER_USER
+  Description: A confirmed booking was made but the consumer was never checked in for this visit
+  """
+  NO_SHOW
+
+  """
+  Authenticated: true
+  Role(s): ADMIN, SUPER_USER
+  Description: An initialised booking has been successfully paid for and is pending confirmation
+  """
+  PENDING
+  BOOKED @deprecated(reason: "Outdated and believed to no longer be required")
+  CANCELATION_FAILED
+    @deprecated(
+      reason: "Outdated and believed to only be needed for Snap Logic"
+    )
+
+  """
+  Authenticated: true
+  Role(s): ADMIN, SUPER_USER
+  Description: A booking has been refunded via the API or manually by ops team
+  """
+  REFUNDED
+}
+
+"""
+The category of booking that has been made.
+"""
+enum BookingType {
+  WALK_UP
+  RESERVATION
+  RESERVATION_FEE_ONLY
+}
+
+input BookingInput {
+  """
+  This key represents linked account Id of the consumer
+  """
+  actingAccount: String
+  experience: ExperienceKey
+  bookedFrom: Date!
+  bookedTo: Date!
+  caseID: String
+  outletTimezone: String
+  consumerId: String
+  lastArrival: Date
+  invoice: String
+  stripePaymentID: String
+  type: BookingType!
+  guestAdultCount: Int! = 1
+  guestChildrenCount: Int! = 0
+  guestInfantCount: Int! = 0
+  metadata: JSONObject
+  partnerMetadata: JSONObject
+  piiMetadata: JSONObject
+  productID: String
+  pdfVersion: String
+  entitlementIDs: [String]
+  passengerNumber: String @deprecated(reason: "Use membershipNumber instead")
+  legacyVisitReference: String @deprecated(reason: "Use piiMetadata instead")
+  legacyPassengerName: String @deprecated(reason: "Use piiMetadata instead")
+  legacyCaptureMethod: Int @deprecated(reason: "Use piiMetadata instead")
+  legacyLoungeProgram: String @deprecated(reason: "Use piiMetadata instead")
+  boardingPass: String @deprecated(reason: "Use piiMetadata instead")
+  signature: String @deprecated(reason: "Use piiMetadata instead")
+  slotConfigurationID: String
+  slotIDs: [String]
+  usedEntitlementsCount: Int = 0
+  membershipNumber: String
+}
+
+enum TimezoneType {
+  UTC
+  LOCAL
+}
+
+input PaymentInput {
+  stripePaymentID: String
+  orderID: String
+}
+
+input ExperienceKey {
+  id: ID!
+}
+
+input FlightInformation {
+  type: String!
+  dateTime: Date!
+  airport: String
+  terminal: String!
+}
+
+input Guests {
+  adultCount: Int! = 0
+  childrenCount: Int! = 0
+  infantCount: Int! = 0
+}
+
+input LegacyProductInput {
+  productType: ProductType
+  productID: String!
+  supplierCode: String!
+}
+
+"""
+The lifecycle of payment options
+"""
+enum PaymentOption {
+  Charge
+  NoPaymentRequired
+  Refund
+}
+
+type PaymentRequestData {
+  checkoutUrl: String
+  clientSecret: String
+  stripeApiToken: String
+  inAppCheckoutUrl: String
+}
+
+input PaymentRequestInput {
+  bookingID: String!
+  consumerID: String
+  internalProductId: String
+  returnUrl: String!
+  quantity: Int
+  locale: String
+  amendmentID: String
+  uiMode: StripeUIMode
+}
+
+"""
+The lifecycle statuses of an amendment
+"""
+enum AmendmentStatus {
+  CHARGE_COMPLETED
+  CHARGE_FAILED
+  CHARGE_INITIALIZED
+  CONFIRMED
+  FAILED_TO_UPDATE_BOOKING_RECORD
+  INITIALIZED
+  REFUND_FAILED
+  SNAPLOGIC_AMENDMENT_FAILED
+  SNAPLOGIC_DATA_IS_INCORRECT
+}
+
+input AmendmentInput {
+  actingAccount: String
+  bookingID: String!
+  bookedFrom: Date!
+  bookedTo: Date!
+  outletTimezone: String
+  lastArrival: Date
+  guestAdultCount: Int! = 0
+  guestChildrenCount: Int! = 0
+  guestInfantCount: Int! = 0
+  usedEntitlementsCount: Int = 0
+}
+
+type Amendment {
+  id: ID!
+  bookingID: ID!
+  actingAccount: String
+  booking: Booking
+  bookedFrom(timezoneType: TimezoneType): String!
+  bookedTo(timezoneType: TimezoneType): String!
+  outletTimezoneOffset: Int @deprecated(reason: "Use outletTimezone")
+  outletTimezone: String
+  lastArrival(timezoneType: TimezoneType): String!
+  createdAt: Date!
+  updatedAt: Date!
+  guestAdultCount(value: Int = 1): Int!
+  guestChildrenCount(value: Int = 0): Int!
+  guestInfantCount(value: Int = 0): Int!
+  paymentOption: PaymentOption!
+  price: Int!
+  reference: String!
+  refundStatus: String
+  refundedAt: Date
+  status: AmendmentStatus!
+  usedEntitlementsCount: Int
+}
+
+input AvailabilityInput {
+  flightInformation: FlightInformation!
+  guests: Guests!
+  product: LegacyProductInput!
+  order: SortOrder
+}
+
+type Slots {
+  startDate: Date
+  endDate: Date
+  maxDuration: String
+  capacityLeft: Int
+  slotConfigurationId: String
+}
+
+type Availability {
+  messageID: String
+  temporaryReservationID: String
+  slots: [Slots!]!
+  partnerMetadata: JSONObject
+}
+
+"""
+Type containing the page details
+"""
+type PageInformation {
+  """
+  The current page returned
+  """
+  currentPage: Int
+
+  """
+  Is there is a next page
+  """
+  hasNextPage: Boolean
+
+  """
+  Is there a previous page
+  """
+  hasPreviousPage: Boolean
+
+  """
+  Count of total pages returned
+  """
+  totalPages: Int
+}
+
+"""
+Pagination type for bookings
+"""
+type PaginatedBookings {
+  """
+  The list of bookings in the current page
+  """
+  items: [Booking]
+
+  """
+  The pagination information
+  """
+  pageInfo: PageInformation
+
+  """
+  The total number of bookings
+  """
+  totalItemCount: Int
+}
+
+enum ProductType {
+  Lounge
+  Fasttrack
+}
+
+"""
+The lifecycle statuses of a refund
+"""
+enum RefundStatus {
+  """
+  Cancelled
+  """
+  CANCELED
+
+  """
+  Failed
+  """
+  FAILED
+
+  """
+  Default value
+  """
+  NOT_APPLICABLE
+
+  """
+  Requires action on dashboard
+  """
+  PENDING
+
+  """
+  Requires action on dashboard
+  """
+  REQUIRES_ACTION
+
+  """
+  Successful payment
+  """
+  SUCCEEDED
+}
+
+"""
+The ui mode of the stripe checkout session
+"""
+enum StripeUIMode {
+  embedded
+  hosted
+}
+
+input UpdateBookingProperties {
+  status: BookingStatus
+  statusMessage: String
+  statusReasonCode: String
+}
+
+scalar Amount
+
+enum Currency {
+  EUR
+  GBP
+  USD
+  INR
+}
+
+input MakePaymentInput {
+  payment: MakePaymentDetailsInput!
+  paymentCardId: ID!
+}
+
+type PaymentAddress {
+  company: String
+  line1: String!
+  line2: String
+  town: String!
+  county: String
+  postcode: String
+  country: String!
+}
+
+input PaymentAddressInput {
+  company: String
+  line1: String!
+  line2: String
+  town: String!
+  county: String
+  postcode: String
+  country: String!
+}
+
+input PaymentBookingInput {
+  bookingReference: String
+  airportCode: String
+  loungeCode: String
+  website: String
+}
+
+type PaymentCard {
+  id: ID
+  brand: PaymentCardBrand!
+  name: String!
+  expiryMonth: Int!
+  expiryYear: Int!
+  last4Digits: String!
+  isDefault: Boolean
+  saved: Boolean
+  address: PaymentAddress
+}
+
+enum PaymentCardBrand {
+  AFFIRM
+  AIRPLUS
+  ALIA
+  ALIADEBIT
+  AMEX
+  APPLEPAY
+  ARGENCARD
+  AXP
+  BCMC
+  CABAL
+  CABALDEBIT
+  CARNET
+  CARTEBANCAIRE
+  CARTEBLEUE
+  CASHLINKMALTA
+  CENCOSUD
+  CLICK_TO_PAY
+  DANKORT
+  DINERS
+  DISCOVER
+  ELO
+  FACILYPAY_3X
+  FACILYPAY_3XSANSFRAIS
+  FACILYPAY_4X
+  FACILYPAY_4XSANSFRAIS
+  GOOGLEPAY
+  HEB_GIFT_CARD
+  HIPERCARD
+  JCB
+  MADA
+  MAESTRO
+  MASTER
+  MASTERCARD
+  MASTERDEBIT
+  MEEZA
+  MERCADOLIVRE
+  NARANJA
+  NATIVA
+  PETCO_MASTERCARD
+  PETCO_UPLCC
+  RBC_PAYPLAN
+  SAMSUNGPAY
+  SCHEELS
+  SERVIRED
+  SISTEMACLAVE
+  STAPLES
+  TARJETASHOPPING
+  TCARD
+  TCARDDEBIT
+  TRADE_UK
+  UNIONPAY
+  UNIONPAY_SMS
+  VISA
+  VISADEBIT
+  VISAELECTRON
+  VPAY
+}
+
+input PaymentCardOptionsInput {
+  isDefault: Boolean
+  save: Boolean
+}
+
+input PaymentConsumerDataInput {
+  familyName: String
+  givenName: String
+  email: String
+  phone: String
+  consumerId: String
+}
+
+input PaymentContextInput {
+  id: ID!
+  type: PaymentType!
+  value: PaymentValueInput!
+  customer: PaymentCustomerInput
+  booking: PaymentBookingInput
+  accessCode: String
+}
+
+input PaymentCustomerInput {
+  email: String
+  familyName: String
+  givenName: String
+  mobile: String
+  status: PaymentCustomerStatus
+}
+
+enum PaymentCustomerStatus {
+  NEW
+  EXISTING
+}
+
+input PaymentOptionsInput {
+  paymentCard: PaymentCardOptionsInput
+}
+
+type PaymentSessionResult {
+  url: String
+  paymentSessionId: String!
+  paymentServiceProvider: PaymentProvider!
+}
+
+input PaymentSessionContextInput {
+  address: PaymentAddressInput
+  options: PaymentOptionsInput
+  payment: PaymentSessionContextPaymentInput
+}
+
+type PaymentStatus {
+  id: ID!
+  status: PaymentStatusResult!
+  type: PaymentType!
+  value: PaymentValue
+  card: PaymentCard
+  errorCode: String
+}
+
+enum PaymentStatusResult {
+  SUCCESS
+  REJECTED
+}
+
+enum PaymentType {
+  PREAUTHORIZATION
+  DEBIT
+  CREDIT
+  CAPTURE
+  REVERSAL
+  REFUND
+}
+
+type PaymentValue {
+  amount: Float!
+  currency: Currency!
+  transactionType: TransactionType
+}
+
+input PaymentValueInput {
+  """
+  The amount with a scale of 2. Example: 5.00
+  """
+  amount: Float!
+  currency: Currency!
+  transactionType: TransactionType
+}
+
+type PaymentWebApp {
+  url: String!
+  accessCode: String!
+  paymentId: String!
+}
+
+input PaymentWebAppContextInput {
+  id: ID!
+  consumer: PaymentConsumerDataInput!
+  membership: PaymentMembershipInput!
+  metadata: JSONObject
+  order: PaymentValueInput!
+  ui: PaymentCustomUIInput
+}
+
+enum Theme {
+  PRIORITY_PASS
+}
+
+input PaymentRefundInput {
+  amount: Float!
+  paymentId: ID!
+  refundType: PaymentRefundType
+}
+
+enum PaymentRefundType {
+  FULL
+  PARTIAL
+}
+
+type PaymentRefundResult {
+  paymentId: ID!
+  refundId: ID!
+  provider: PaymentProvider!
+  refundPriority: PaymentRefundPriority!
+  refundType: PaymentRefundType!
+  status: PaymentRefundStatusResult!
+  value: PaymentValue!
+}
+
+enum PaymentProvider {
+  ACI
+  CASHFREE
+}
+
+enum PaymentRefundPriority {
+  INSTANT
+  STANDARD
+}
+
+enum PaymentRefundStatusResult {
+  SUCCESS
+  PENDING
+  CANCELLED
+  ONHOLD
+  FAILED
+}
+
+enum TransactionType {
+  ECOM
+  MOTO
+  RECURRING
+}
+
+type PaymentMembership {
+  programme: PaymentProgramme
+  businessunit: Businessunit
+  serviceCentre: String
+}
+
+input PaymentCustomUIInput {
+  locale: String
+  mode: PaymentMode
+  paymentMethods: [PaymentMethod]
+  theme: Theme
+  successUrl: String
+  errorUrl: String
+}
+
+enum PaymentProgramme {
+  LOUNGE_KEY
+  LOUNGE_PASS
+  PP_PRIVATE
+  PRIORITY_PASS
+}
+
+enum Businessunit {
+  LLP
+  PP_AP
+  PP_INC
+  PP_LTD
+}
+
+enum PaymentMode {
+  EMBEDDED
+  STANDALONE
+}
+
+input PaymentMembershipInput {
+  programme: PaymentProgramme
+  businessunit: Businessunit
+  serviceCentre: String
+}
+
+input PaymentCardAddressInput {
+  address: PaymentAddressInput!
+  paymentCardId: ID!
+}
+
+enum PaymentMethod {
+  APPLE_PAY
+  CARD
+  GOOGLE_PAY
+}
+
+type PaymentConsumer {
+  email: String
+  phoneNumber: String
+  familyName: String
+  givenName: String
+  consumerId: String
+}
+
+type PaymentCustomUI {
+  locale: String
+  mode: PaymentMode
+  paymentMethods: [PaymentMethod]
+  theme: Theme
+  successUrl: String
+  errorUrl: String
+}
+
+type VerifySignatureResult {
+  accessCode: String!
+  ui: PaymentCustomUI
+  consumer: PaymentConsumer!
+  paymentServiceProvider: PaymentProvider!
+  amount: PaymentValue!
+}
+
+input PaymentSessionContextCustomerInput {
+  email: String!
+  givenName: String!
+  familyName: String!
+  mobile: String!
+}
+
+input PaymentSessionContextPaymentInput {
+  id: String!
+  customer: PaymentSessionContextCustomerInput
+  accessCode: String!
+}
+
+input MakePaymentDetailsInput {
+  id: ID!
+  accessCode: String!
+  customer: MakePaymentCustomerInput!
+}
+
+input MakePaymentCustomerInput {
+  email: String!
+  mobile: String!
+}
+
+"""
+This allows us to send invitations for access, currently creating a partner account and linking it to an experience
+"""
+type Invitation {
+  id: ID!
+  inviteeEmail: String!
+  outletIDs: [String]
+  expiresAt: Date!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+input InvitationInput {
+  inviteeEmail: String!
+  outletIDs: [String]
+  userType: InvitationUserType!
+  partnerAccessProfile: PartnerAccessProfile
+}
+
+"""
+The types of user invitation that can be sent
+"""
+enum InvitationUserType {
+  """
+  An operator who can see the details for a list of outlets
+  """
+  OUTLET_MANAGER
+
+  """
+  An operator who can see the details for a single experience
+  """
+  PARTNER
+
+  """
+  An admin user that has access to all experiences and full permissions
+  """
+  SUPER_USER
+}
+
+input AcceptInvitationInput {
+  email: String!
+  password: String!
+  inviteToken: String!
+}
+
+"""
+The access profile for a partner
+"""
+enum PartnerAccessProfile {
+  """
+  An admin user that has access to all sections and full permissions
+  """
+  ADMIN
+
+  """
+  A user that has access to specific sections and limited permissions
+  """
+  STANDARD
+}
